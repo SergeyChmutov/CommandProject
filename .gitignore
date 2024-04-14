@@ -39,7 +39,7 @@
 .idea/modules
 *.iml
 *.ipr
-
+scr/main/java/animalshelter
 # CMake
 cmake-build-*/
 
