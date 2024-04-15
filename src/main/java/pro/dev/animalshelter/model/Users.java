@@ -1,4 +1,4 @@
-package com.example.users.model;
+package pro.dev.animalshelter.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -10,18 +10,15 @@ import java.util.Objects;
 @Entity
 public class Users {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;
-
     String name;
-
     Integer phone;
 
     public Users() {
     }
 
-    public Users(String name, Integer phone) {
-
+    public Users(Long id, String name, Integer phone) {
+        this.id = id;
         this.name = name;
         this.phone = phone;
     }

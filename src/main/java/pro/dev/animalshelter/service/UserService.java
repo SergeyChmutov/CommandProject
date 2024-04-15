@@ -1,23 +1,24 @@
-package com.example.users.servis;
+package pro.dev.animalshelter.service;
 
-import com.example.users.model.Users;
-import com.example.users.repository.UserRepository;
+import pro.dev.animalshelter.interfaces.UserInterface;
+import pro.dev.animalshelter.model.Users;
+import pro.dev.animalshelter.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class UserServis implements UserInterface {
+public class UserService implements UserInterface {
     private final UserRepository userRepository;
 
-    public UserServis(UserRepository userRepository) {
+    public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
     @Override
-    public Users addUser(String name, Integer phone) {
-        Users a = new Users(name,phone);
-        if (userRepository.findAll().indexOf(a) ==(-1)){
+    public Users addUser(Long id, String name, Integer phone) {
+        Users a = new Users(id, name, phone);
+        if (!userRepository.findAll().contains(a)){
             userRepository.save(a);
         }
 
@@ -29,7 +30,7 @@ public class UserServis implements UserInterface {
     }
     @Override
     public String removeUser(Long id) {
-        if (id == -1l){
+        if (id == -1L){
             userRepository.deleteAll();
             return "База данных очищена";
         }

@@ -1,6 +1,6 @@
-package com.example.users.repository;
+package pro.dev.animalshelter.repository;
 
-import com.example.users.model.Users;
+import pro.dev.animalshelter.model.Users;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
