@@ -6,7 +6,7 @@ import pro.dev.animalshelter.enums.ShelterInformationProperty;
 
 import java.util.stream.Stream;
 
-@Converter(autoApply = true)
+@Converter
 public class ShelterInformationPropertyConverter implements AttributeConverter<ShelterInformationProperty, String> {
 
     @Override
@@ -23,9 +23,6 @@ public class ShelterInformationPropertyConverter implements AttributeConverter<S
             return null;
         }
 
-        return Stream.of(ShelterInformationProperty.values())
-                .filter(c -> c.getPropertyName().equals(propertyName))
-                .findFirst()
-                .orElseThrow(IllegalArgumentException::new);
+        return ShelterInformationProperty.getPropertyByName(propertyName);
     }
 }
