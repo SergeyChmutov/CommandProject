@@ -1,10 +1,11 @@
 package pro.dev.animalshelter.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import pro.dev.animalshelter.converter.ShelterInformationPropertyConverter;
+import pro.dev.animalshelter.enums.ShelterInformationProperty;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 @Entity
@@ -13,6 +14,15 @@ public class Shelter {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
+    @ElementCollection
+    @CollectionTable(
+            name = "shelter_information_mapping",
+            joinColumns = {@JoinColumn(name = "shelter_id", referencedColumnName = "id")}
+    )
+    @MapKeyEnumerated(EnumType.STRING)
+    @Convert(converter = ShelterInformationPropertyConverter.class,attributeName = "key")
+    @Column(name = "property_value")
+    private Map<ShelterInformationProperty, String> informationProperties = new HashMap<>();
 
     public Shelter() {
     }
@@ -36,6 +46,14 @@ public class Shelter {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Map<ShelterInformationProperty, String> getInformationProperties() {
+        return informationProperties;
+    }
+
+    public void setInformationProperties(Map<ShelterInformationProperty, String> informationProperties) {
+        this.informationProperties = informationProperties;
     }
 
     @Override

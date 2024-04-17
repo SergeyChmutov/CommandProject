@@ -24,5 +24,4 @@ public class ShelterInformationController {
     ) {
         return service.saveShelterInformationProperty(shelterId, propertyName, propertyValue);
     }
-
 }
