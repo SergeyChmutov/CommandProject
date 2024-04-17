@@ -177,3 +177,9 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+<<<<<<< HEAD
+=======
+/.idea/vcs.xml
+/.idea/encodings.xml
+/.mvn/wrapper/maven-wrapper.properties
+>>>>>>> ed18cf6 (Привязанная логика пользователя к тг боту)
