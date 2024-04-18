@@ -7,19 +7,25 @@ import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import org.springframework.stereotype.Service;
 import pro.dev.animalshelter.model.Users;
 import pro.dev.animalshelter.repository.UserRepository;
+import pro.dev.animalshelter.model.Shelter;
+import pro.dev.animalshelter.repository.ShelterRepository;
 
 import static pro.dev.animalshelter.constant.Constants.*;
 
 @Service
 public class UpdateService {
     private final TelegramBotSender telegramBotSender;
-    private final UserService service;
+    private final UserService userService;
     private final InlineKeyboardMarkupCreator inlineKeyboardMarkupCreator;
 
-    public UpdateService(TelegramBotSender telegramBotSender, UserService service, InlineKeyboardMarkupCreator inlineKeyboardMarkupCreator) {
+    public UpdateService(
+            TelegramBotSender telegramBotSender,
+            InlineKeyboardMarkupCreator inlineKeyboardMarkupCreator,
+            UserService userService
+    ) {
         this.telegramBotSender = telegramBotSender;
-        this.service = service;
         this.inlineKeyboardMarkupCreator = inlineKeyboardMarkupCreator;
+        this.userService = userService;
     }
 
     public void processUpdate(Update update) {
@@ -28,8 +34,8 @@ public class UpdateService {
         if (message != null && message.text() != null && message.text().equals("/start")) {
 
             Long chatId = update.message().chat().id();
-            if (!service.existsById(chatId)) {
-                service.addUser(chatId, update.message().chat().firstName(), null);
+            if (!userService.existsById(chatId)) {
+                userService.addUser(chatId, update.message().chat().firstName(), null);
             }
             InlineKeyboardMarkup markupStart = inlineKeyboardMarkupCreator.createKeyboardStart();
             telegramBotSender.send(chatId, MESSAGE_START, markupStart);
@@ -60,24 +66,6 @@ public class UpdateService {
 
             case VOLUNTEER_BUTTON:
                 telegramBotSender.send(chatId, MESSAGE_VOLUNTEER);
-                break;
-
-            case WET_NOSE_BUTTON:
-                InlineKeyboardMarkup markupInformationAboutWetNose = inlineKeyboardMarkupCreator.createKeyboardInformationAboutShelter();
-                telegramBotSender.send(
-                        chatId,
-                        "Добро пожаловать в приют Мокрый нос! " + MESSAGE_INFORMATION_ABOUT_SHELTER,
-                        markupInformationAboutWetNose
-                );
-                break;
-
-            case PUG_BUTTON:
-                InlineKeyboardMarkup markupInformationAboutPug = inlineKeyboardMarkupCreator.createKeyboardInformationAboutShelter();
-                telegramBotSender.send(
-                        chatId,
-                        "Добро пожаловать в приют Мопс! " + MESSAGE_INFORMATION_ABOUT_SHELTER,
-                        markupInformationAboutPug
-                );
                 break;
 
             case ADDRESS_BUTTON:
@@ -164,6 +152,13 @@ public class UpdateService {
                 break;
 
             default:
+                InlineKeyboardMarkup markupInformationAboutShelter = inlineKeyboardMarkupCreator.createKeyboardInformationAboutShelter();
+                telegramBotSender.sendShelterMessage(
+                        chatId,
+                        data,
+                        MESSAGE_INFORMATION_ABOUT_SHELTER,
+                        markupInformationAboutShelter
+                );
                 break;
         }
     }

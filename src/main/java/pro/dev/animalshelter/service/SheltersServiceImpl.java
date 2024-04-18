@@ -2,6 +2,7 @@ package pro.dev.animalshelter.service;
 
 import org.springframework.stereotype.Service;
 import pro.dev.animalshelter.interfaces.ShelterService;
+import pro.dev.animalshelter.model.Animal;
 import pro.dev.animalshelter.model.Shelter;
 import pro.dev.animalshelter.model.Users;
 import pro.dev.animalshelter.repository.ShelterRepository;
@@ -46,10 +47,10 @@ public class SheltersServiceImpl implements ShelterService {
                 .orElseThrow(() -> new SheltersNotFoundException("Приют не найден"));
     }
 
-//    @Override
-//    public List<Animal> getAnimals(Long id) {
-//        return shelterRepository.findById(id)
-//                .map(Shelter::getAnimals)
-//                .orElseThrow(() -> new SheltersNotFoundException("Приют не найден"));
-//    }
+    @Override
+    public List<Animal> getAnimals(Long id) {
+        return shelterRepository.findById(id)
+                .map(Shelter::getAnimals)
+                .orElseThrow(() -> new SheltersNotFoundException("Приют не найден"));
+    }
 }

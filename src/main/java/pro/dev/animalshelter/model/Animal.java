@@ -12,8 +12,8 @@ public class Animal {
     private Long idAnimal;
     private String name;
     private int age;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "shelter_id") //забрать животного из конкретного приюта
+    @ManyToOne
+    @JoinColumn(name = "shelter_id")
     private Shelter shelter;
 
     public Animal() {
@@ -63,7 +63,10 @@ public class Animal {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Animal animal = (Animal) o;
-        return age == animal.age && Objects.equals(idAnimal, animal.idAnimal) && Objects.equals(name, animal.name) && Objects.equals(shelter, animal.shelter);
+        return age == animal.age
+                && Objects.equals(idAnimal, animal.idAnimal)
+                && Objects.equals(name, animal.name)
+                && Objects.equals(shelter, animal.shelter);
     }
 
     @Override

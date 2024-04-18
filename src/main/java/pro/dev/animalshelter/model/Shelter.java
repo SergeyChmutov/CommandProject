@@ -27,6 +27,14 @@ public class Shelter {
         this.name = name;
     }
 
+    public List<Animal> getAnimals() {
+        return animals;
+    }
+
+    public void setAnimals(List<Animal> animals) {
+        this.animals = animals;
+    }
+
     public long getId() {
         return id;
     }
