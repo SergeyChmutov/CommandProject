@@ -1,9 +1,6 @@
 package pro.dev.animalshelter.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import java.util.Objects;
 
@@ -13,6 +10,9 @@ public class Users {
     Long id;
     String name;
     Integer phone;
+    @ManyToOne
+    @JoinColumn(name = "shelter_id")
+    Shelter shelter;
 
     public Users() {
     }
