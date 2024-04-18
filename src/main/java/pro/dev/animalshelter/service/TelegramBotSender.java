@@ -39,7 +39,6 @@ public class TelegramBotSender {
         sendMessage(message, sendMessage);
     }
 
-
     private void sendMessage(String message, SendMessage sendMessage) {
         SendResponse response = telegramBot.execute(sendMessage);
         if (response.isOk()) {

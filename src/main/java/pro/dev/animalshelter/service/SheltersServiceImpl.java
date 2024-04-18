@@ -1,6 +1,7 @@
 package pro.dev.animalshelter.service;
 
 import org.springframework.stereotype.Service;
+import pro.dev.animalshelter.exception.SheltersNotFoundException;
 import pro.dev.animalshelter.interfaces.ShelterService;
 import pro.dev.animalshelter.model.Animal;
 import pro.dev.animalshelter.model.Shelter;

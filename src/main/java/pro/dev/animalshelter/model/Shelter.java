@@ -64,7 +64,9 @@ public class Shelter {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Shelter shelters = (Shelter) o;
-        return id == shelters.id && Objects.equals(name, shelters.name) && Objects.equals(volunteers, shelters.volunteers);
+        return id == shelters.id
+                && Objects.equals(name, shelters.name)
+                && Objects.equals(volunteers, shelters.volunteers);
     }
 
     @Override

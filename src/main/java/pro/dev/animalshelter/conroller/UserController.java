@@ -1,8 +1,8 @@
 package pro.dev.animalshelter.conroller;
 
+import org.springframework.web.bind.annotation.*;
 import pro.dev.animalshelter.model.Users;
 import pro.dev.animalshelter.service.UserService;
-import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -16,22 +16,22 @@ public class UserController {
     }
 
     @GetMapping
-    public List<Users> findAllUsers(){
-       return service.allUser();
+    public List<Users> findAllUsers() {
+        return service.allUser();
     }
 
     @DeleteMapping("{id}")
-    public String removeUser(@PathVariable Long id){
+    public String removeUser(@PathVariable Long id) {
         return service.removeUser(id);
     }
 
     @DeleteMapping()
-    public String clearUsers(){
+    public String clearUsers() {
         return service.clearUsers();
     }
 
     @GetMapping("{id}")
-    public Users findById(@PathVariable Long id){
+    public Users findById(@PathVariable Long id) {
         return service.findById(id);
     }
 }

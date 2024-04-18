@@ -16,9 +16,8 @@ import static pro.dev.animalshelter.constant.Constants.*;
 
 @Component
 public class InlineKeyboardMarkupCreator {
-
     private final ShelterService shelterService;
-    private Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
+    private final Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
 
     public InlineKeyboardMarkupCreator(ShelterService shelterService) {
         this.shelterService = shelterService;
@@ -109,7 +108,7 @@ public class InlineKeyboardMarkupCreator {
     public InlineKeyboardMarkup createKeyboardInformationAboutPets() {
         List<InlineKeyboardButton> buttonsRow1 = new ArrayList<>();
         buttonsRow1.add(
-                new InlineKeyboardButton("Cписок животных для усыновления")
+                new InlineKeyboardButton("Список животных для усыновления")
                         .callbackData(CHOOSE_PET_BUTTON)
         );
 
@@ -147,7 +146,7 @@ public class InlineKeyboardMarkupCreator {
     public InlineKeyboardMarkup createKeyboardRecommendation() {
         List<InlineKeyboardButton> buttonsRow1 = new ArrayList<>();
         buttonsRow1.add(
-                new InlineKeyboardButton("По траснпортировке животного")
+                new InlineKeyboardButton("По транспортировке животного")
                         .callbackData(TRANSPORTATION_BUTTON)
         );
 
