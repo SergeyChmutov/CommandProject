@@ -16,9 +16,17 @@ public class Shelter {
     @JsonIgnore
     private List<Users> volunteers;
 
-//    @OneToMany(mappedBy = "shelter")
-//    @JsonIgnore
-//    private List<Animal> animals;
+    @OneToMany(mappedBy = "shelter")
+    @JsonIgnore
+    private List<Animal> animals;
+
+    public List<Animal> getAnimals() {
+        return animals;
+    }
+
+    public void setAnimals(List<Animal> animals) {
+        this.animals = animals;
+    }
 
     public Shelter() {
     }

@@ -2,6 +2,7 @@ package pro.dev.animalshelter.conroller;
 
 import org.springframework.web.bind.annotation.*;
 import pro.dev.animalshelter.interfaces.ShelterService;
+import pro.dev.animalshelter.model.Animal;
 import pro.dev.animalshelter.model.Shelter;
 import pro.dev.animalshelter.model.Users;
 
@@ -41,8 +42,8 @@ public class ShelterController {
         return shelterService.getVolunteers(id);
     }
 
-//    @GetMapping("{id}/animals")
-//    public List<Animal> getAnimals(@PathVariable Long id) {
-//        return shelterService.getAnimals(id);
-//    }
+    @GetMapping("{id}/animals")
+    public List<Animal> getAnimals(@PathVariable Long id) {
+        return shelterService.getAnimals(id);
+    }
 }

@@ -5,6 +5,8 @@ import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import org.springframework.stereotype.Service;
+import pro.dev.animalshelter.model.Shelter;
+import pro.dev.animalshelter.repository.ShelterRepository;
 
 import static pro.dev.animalshelter.constant.Constants.*;
 
@@ -36,7 +38,9 @@ public class UpdateService {
     }
 
     private void chooseCommand(String data, Long chatId) {
+
         switch (data) {
+
             case INFORMATION_ABOUT_SHELTERS_BUTTON:
                 InlineKeyboardMarkup markupChooseShelters = inlineKeyboardMarkupCreator.createKeyboardChooseShelters();
                 telegramBotSender.send(chatId, MESSAGE_CHOOSE_SHELTERS, markupChooseShelters);
@@ -53,24 +57,6 @@ public class UpdateService {
 
             case VOLUNTEER_BUTTON:
                 telegramBotSender.send(chatId, MESSAGE_VOLUNTEER);
-                break;
-
-            case WET_NOSE_BUTTON:
-                InlineKeyboardMarkup markupInformationAboutWetNose = inlineKeyboardMarkupCreator.createKeyboardInformationAboutShelter();
-                telegramBotSender.send(
-                        chatId,
-                        "Добро пожаловать в приют Мокрый нос! " + MESSAGE_INFORMATION_ABOUT_SHELTER,
-                        markupInformationAboutWetNose
-                );
-                break;
-
-            case PUG_BUTTON:
-                InlineKeyboardMarkup markupInformationAboutPug = inlineKeyboardMarkupCreator.createKeyboardInformationAboutShelter();
-                telegramBotSender.send(
-                        chatId,
-                        "Добро пожаловать в приют Мопс! " + MESSAGE_INFORMATION_ABOUT_SHELTER,
-                        markupInformationAboutPug
-                );
                 break;
 
             case ADDRESS_BUTTON:
@@ -157,6 +143,13 @@ public class UpdateService {
                 break;
 
             default:
+                InlineKeyboardMarkup markupInformationAboutShelter = inlineKeyboardMarkupCreator.createKeyboardInformationAboutShelter();
+                telegramBotSender.sendShelterMessage(
+                        chatId,
+                        data,
+                        MESSAGE_INFORMATION_ABOUT_SHELTER,
+                        markupInformationAboutShelter
+                );
                 break;
         }
     }

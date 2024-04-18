@@ -1,5 +1,6 @@
 package pro.dev.animalshelter.interfaces;
 
+import pro.dev.animalshelter.model.Animal;
 import pro.dev.animalshelter.model.Shelter;
 import pro.dev.animalshelter.model.Users;
 
@@ -16,5 +17,5 @@ public interface ShelterService {
 
     List<Users> getVolunteers(Long id);
 
-//    List<Animal> getAnimals(Long id);
+    List<Animal> getAnimals(Long id);
 }
