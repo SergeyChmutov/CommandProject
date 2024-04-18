@@ -5,16 +5,20 @@ import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import org.springframework.stereotype.Service;
+import pro.dev.animalshelter.model.Users;
+import pro.dev.animalshelter.repository.UserRepository;
 
 import static pro.dev.animalshelter.constant.Constants.*;
 
 @Service
 public class UpdateService {
     private final TelegramBotSender telegramBotSender;
+    private final UserService service;
     private final InlineKeyboardMarkupCreator inlineKeyboardMarkupCreator;
 
-    public UpdateService(TelegramBotSender telegramBotSender, InlineKeyboardMarkupCreator inlineKeyboardMarkupCreator) {
+    public UpdateService(TelegramBotSender telegramBotSender, UserService service, InlineKeyboardMarkupCreator inlineKeyboardMarkupCreator) {
         this.telegramBotSender = telegramBotSender;
+        this.service = service;
         this.inlineKeyboardMarkupCreator = inlineKeyboardMarkupCreator;
     }
 
@@ -24,6 +28,9 @@ public class UpdateService {
         if (message != null && message.text() != null && message.text().equals("/start")) {
 
             Long chatId = update.message().chat().id();
+            if (!service.existsById(chatId)) {
+                service.addUser(chatId, update.message().chat().firstName(), null);
+            }
             InlineKeyboardMarkup markupStart = inlineKeyboardMarkupCreator.createKeyboardStart();
             telegramBotSender.send(chatId, MESSAGE_START, markupStart);
 

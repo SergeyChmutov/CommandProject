@@ -18,25 +18,34 @@ public class UserService implements UserInterface {
     @Override
     public Users addUser(Long id, String name, Integer phone) {
         Users a = new Users(id, name, phone);
-        if (!userRepository.findAll().contains(a)){
-            userRepository.save(a);
-        }
-
+        userRepository.save(a);
         return a;
     }
+
     @Override
     public List<Users> allUser() {
         return userRepository.findAll();
     }
+
     @Override
     public String removeUser(Long id) {
-        if (id == -1L){
-            userRepository.deleteAll();
-            return "База данных очищена";
-        }
         userRepository.deleteById(id);
         return "Пользователь удалён!";
     }
 
+    @Override
+    public String clearUsers() {
+        userRepository.deleteAll();
+        return "База данных очищена";
+    }
 
+    @Override
+    public Users findById(Long id) {
+        return userRepository.findById(id).get();
+    }
+
+    @Override
+    public Boolean existsById(Long id) {
+        return userRepository.existsById(id);
+    }
 }

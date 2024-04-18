@@ -20,13 +20,18 @@ public class UserController {
        return service.allUser();
     }
 
-    @PostMapping
-    public Users addUser(@RequestParam Long id, @RequestParam String name, @RequestParam Integer phone) {
-        return service.addUser(id, name, phone);
-    }
-
     @DeleteMapping("{id}")
     public String removeUser(@PathVariable Long id){
         return service.removeUser(id);
+    }
+
+    @DeleteMapping()
+    public String clearUsers(){
+        return service.clearUsers();
+    }
+
+    @GetMapping("{id}")
+    public Users findById(@PathVariable Long id){
+        return service.findById(id);
     }
 }

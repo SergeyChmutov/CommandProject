@@ -1,20 +1,29 @@
 package pro.dev.animalshelter.model;
 
-import org.springframework.boot.autoconfigure.domain.EntityScan;
+import jakarta.persistence.*;
 
 import java.util.Objects;
 
-@EntityScan
+@Entity
 public class Animal {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long idAnimal;
     private String name;
     private int age;
-
-    @ManyToOne
-    @JoinColumn(name = "shelte_id");//забрать животного из конкретного приюта
-    private Shelter shelter;//поменять на название класса приюта
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "shelter_id") //забрать животного из конкретного приюта
+    private Shelter shelter;
 
     public Animal() {
+    }
+
+    public Animal(Long idAnimal, String name, int age, Shelter shelter) {
+        this.idAnimal = idAnimal;
+        this.name = name;
+        this.age = age;
+        this.shelter = shelter;
     }
 
     public Shelter getShelter() {
@@ -33,7 +42,6 @@ public class Animal {
         this.idAnimal = idAnimal;
     }
 
-
     public String getName() {
         return name;
     }
@@ -48,13 +56,6 @@ public class Animal {
 
     public void setAge(int age) {
         this.age = age;
-    }
-
-    public Animal(Long idAnimal, String name, int age, Shelter shelter) {
-        this.idAnimal = idAnimal;
-        this.name = name;
-        this.age = age;
-        this.shelter = shelter;
     }
 
     @Override
