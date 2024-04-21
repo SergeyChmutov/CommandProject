@@ -2,19 +2,18 @@ package pro.dev.animalshelter.service;
 
 import org.springframework.stereotype.Service;
 import pro.dev.animalshelter.enums.ShelterInformationProperty;
+import pro.dev.animalshelter.interfaces.ShelterInformationInterface;
 import pro.dev.animalshelter.model.Shelter;
 import pro.dev.animalshelter.model.ShelterInformation;
 import pro.dev.animalshelter.repository.ShelterInformationRepository;
 import pro.dev.animalshelter.repository.ShelterRepository;
 
 @Service
-public class ShelterInformationService {
+public class ShelterInformationService implements ShelterInformationInterface {
     private final ShelterInformationRepository repository;
-    private ShelterRepository shelterRepository;
 
     public ShelterInformationService(ShelterInformationRepository repository, ShelterRepository shelterRepository) {
         this.repository = repository;
-        this.shelterRepository = shelterRepository;
     }
 
     public ShelterInformation saveShelterInformationProperty(
@@ -28,5 +27,12 @@ public class ShelterInformationService {
         ShelterInformation information = new ShelterInformation(shelter, property, propertyValue);
         repository.save(information);
         return information;
+    }
+
+    public ShelterInformation getPropertyByShelterAndName(Long id, String propertyName) {
+        return repository.findByPkShelterIdAndPkShelterInformationProperty(
+                id,
+                ShelterInformationProperty.getPropertyByName(propertyName.toUpperCase())
+        ).orElseThrow(RuntimeException::new);
     }
 }

@@ -1,5 +1,6 @@
 package pro.dev.animalshelter.enums;
 
+import java.util.Collection;
 import java.util.stream.Stream;
 
 public enum ShelterInformationProperty {
@@ -23,5 +24,11 @@ public enum ShelterInformationProperty {
                 .filter(c -> c.getPropertyName().equals(name))
                 .findFirst()
                 .orElseThrow(IllegalArgumentException::new);
+    }
+
+    public static Collection<String> getPropertiesList() {
+        return Stream.of(ShelterInformationProperty.values())
+                .map(ShelterInformationProperty::getPropertyName)
+                .toList();
     }
 }

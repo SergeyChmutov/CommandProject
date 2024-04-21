@@ -25,6 +25,22 @@ public class ShelterInformationPK implements Serializable {
         this.shelterInformationProperty = shelterInformationProperty;
     }
 
+    public Shelter getShelter() {
+        return shelter;
+    }
+
+    public void setShelter(Shelter shelter) {
+        this.shelter = shelter;
+    }
+
+    public ShelterInformationProperty getShelterInformationProperty() {
+        return shelterInformationProperty;
+    }
+
+    public void setShelterInformationProperty(ShelterInformationProperty shelterInformationProperty) {
+        this.shelterInformationProperty = shelterInformationProperty;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
