@@ -33,12 +33,6 @@ public class TelegramBotSender {
         sendMessage(message, sendMessage);
     }
 
-    public void sendShelterMessage(Long chatId, String shelterId, String message, InlineKeyboardMarkup markup) {
-        Shelter shelter = shelterRepository.findById(Long.parseLong(shelterId)).orElseThrow();
-        SendMessage sendMessage = new SendMessage(chatId, "Добро пожаловать в приют " + shelter.getName() + "! " + message).replyMarkup(markup);
-        sendMessage(message, sendMessage);
-    }
-
     private void sendMessage(String message, SendMessage sendMessage) {
         SendResponse response = telegramBot.execute(sendMessage);
         if (response.isOk()) {
