@@ -1,6 +1,7 @@
 package pro.dev.animalshelter.constant;
 
 public class Constants {
+
     public static final String INFORMATION_ABOUT_SHELTERS_BUTTON = "INFORMATION_ABOUT_SHELTERS_BUTTON";
     public static final String INFORMATION_ABOUT_PETS_BUTTON = "INFORMATION_ABOUT_PETS_BUTTON";
     public static final String SEND_REPORT_BUTTON = "SEND_REPORT_BUTTON";
@@ -20,10 +21,6 @@ public class Constants {
     public static final String HOME_BUTTON = "HOME_BUTTON";
     public static final String DOG_HANDLER_BUTTON = "DOG_HANDLER_BUTTON";
     public static final String ANIMALS_WITH_DISABILITIES_HOME_BUTTON = "ANIMALS_WITH_DISABILITIES_HOME_BUTTON";
-
-    // Shelters
-    public static final String WET_NOSE_BUTTON = "WET_NOSE_BUTTON";
-    public static final String PUG_BUTTON = "PUG_BUTTON";
 
     public static final String MESSAGE_START = """
             Привет! Рад вас здесь видеть!

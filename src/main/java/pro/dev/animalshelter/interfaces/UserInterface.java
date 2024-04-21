@@ -11,4 +11,10 @@ public interface UserInterface {
     List<Users> allUser();
 
     String removeUser(Long id);
+
+    String clearUsers();
+
+    Users findById(Long id);
+
+    Boolean existsById(Long id);
 }

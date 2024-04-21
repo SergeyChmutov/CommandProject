@@ -1,28 +1,41 @@
 package pro.dev.animalshelter.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 
+import java.util.List;
 import java.util.Objects;
 
 @Entity
 public class Shelter {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
     private String name;
+    @OneToMany(mappedBy = "shelter")
+    @JsonIgnore
+    private List<Users> volunteers;
+
+    @OneToMany(mappedBy = "shelter")
+    @JsonIgnore
+    private List<Animal> animals;
 
     public Shelter() {
     }
 
-    public Shelter(Long id, String name) {
-        this.id = id;
+    public Shelter(String name) {
         this.name = name;
     }
 
-    public Long getId() {
+    public List<Animal> getAnimals() {
+        return animals;
+    }
+
+    public void setAnimals(List<Animal> animals) {
+        this.animals = animals;
+    }
+
+    public long getId() {
         return id;
     }
 
@@ -38,17 +51,35 @@ public class Shelter {
         this.name = name;
     }
 
+    public List<Users> getVolunteers() {
+        return volunteers;
+    }
+
+    public void setVolunteers(List<Users> volunteers) {
+        this.volunteers = volunteers;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Shelter shelter = (Shelter) o;
-        return Objects.equals(id, shelter.id)
-                && Objects.equals(name, shelter.name);
+        Shelter shelters = (Shelter) o;
+        return id == shelters.id
+                && Objects.equals(name, shelters.name)
+                && Objects.equals(volunteers, shelters.volunteers);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name);
+        return Objects.hash(id, name, volunteers);
+    }
+
+    @Override
+    public String toString() {
+        return "Shelters{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", volunteers=" + volunteers +
+                '}';
     }
 }

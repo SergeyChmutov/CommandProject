@@ -5,7 +5,9 @@ import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import pro.dev.animalshelter.interfaces.ShelterService;
 import pro.dev.animalshelter.listener.TelegramBotUpdatesListener;
+import pro.dev.animalshelter.model.Shelter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +16,12 @@ import static pro.dev.animalshelter.constant.Constants.*;
 
 @Component
 public class InlineKeyboardMarkupCreator {
-    private Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
+    private final ShelterService shelterService;
+    private final Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
+
+    public InlineKeyboardMarkupCreator(ShelterService shelterService) {
+        this.shelterService = shelterService;
+    }
 
     public InlineKeyboardMarkup createKeyboardStart() {
         List<InlineKeyboardButton> buttonsRow1 = new ArrayList<>();
@@ -49,13 +56,16 @@ public class InlineKeyboardMarkupCreator {
     }
 
     public InlineKeyboardMarkup createKeyboardChooseShelters() {
-        List<InlineKeyboardButton> buttonsRow = new ArrayList<>();
-        buttonsRow.add(new InlineKeyboardButton("Мокрый нос").callbackData(WET_NOSE_BUTTON));
-        buttonsRow.add(new InlineKeyboardButton("Мопс").callbackData(PUG_BUTTON));
-
         List<List<InlineKeyboardButton>> keyboardShelters = new ArrayList<>();
-        keyboardShelters.add(buttonsRow);
+        for (Shelter shelter :
+                shelterService.getShelters()) {
+            List<InlineKeyboardButton> buttonsRow = new ArrayList<>();
+            InlineKeyboardButton button = new InlineKeyboardButton(shelter.getName());
+            button.callbackData(Long.toString(shelter.getId()));
 
+            buttonsRow.add(button);
+            keyboardShelters.add(buttonsRow);
+        }
         InlineKeyboardMarkup markupShelters = getInlineKeyboardMarkup(keyboardShelters);
         return markupShelters;
     }
@@ -98,7 +108,7 @@ public class InlineKeyboardMarkupCreator {
     public InlineKeyboardMarkup createKeyboardInformationAboutPets() {
         List<InlineKeyboardButton> buttonsRow1 = new ArrayList<>();
         buttonsRow1.add(
-                new InlineKeyboardButton("Cписок животных для усыновления")
+                new InlineKeyboardButton("Список животных для усыновления")
                         .callbackData(CHOOSE_PET_BUTTON)
         );
 
@@ -136,7 +146,7 @@ public class InlineKeyboardMarkupCreator {
     public InlineKeyboardMarkup createKeyboardRecommendation() {
         List<InlineKeyboardButton> buttonsRow1 = new ArrayList<>();
         buttonsRow1.add(
-                new InlineKeyboardButton("По траснпортировке животного")
+                new InlineKeyboardButton("По транспортировке животного")
                         .callbackData(TRANSPORTATION_BUTTON)
         );
 
