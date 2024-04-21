@@ -37,6 +37,11 @@ public class SheltersServiceImpl implements ShelterService {
     }
 
     @Override
+    public Shelter getShelter(Long id) {
+        return shelterRepository.findById(id).orElseThrow();
+    }
+
+    @Override
     public void deleteShelter(Long id) {
         shelterRepository.deleteById(id);
     }
