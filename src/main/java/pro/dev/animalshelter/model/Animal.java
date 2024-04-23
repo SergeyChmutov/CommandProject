@@ -1,20 +1,29 @@
 package pro.dev.animalshelter.model;
 
-import org.springframework.boot.autoconfigure.domain.EntityScan;
+import jakarta.persistence.*;
 
 import java.util.Objects;
 
-@EntityScan
+@Entity
 public class Animal {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long idAnimal;
     private String name;
     private int age;
-
     @ManyToOne
-    @JoinColumn(name = "shelte_id");//забрать животного из конкретного приюта
-    private Shelter shelter;//поменять на название класса приюта
+    @JoinColumn(name = "shelter_id")
+    private Shelter shelter;
 
     public Animal() {
+    }
+
+    public Animal(Long idAnimal, String name, int age, Shelter shelter) {
+        this.idAnimal = idAnimal;
+        this.name = name;
+        this.age = age;
+        this.shelter = shelter;
     }
 
     public Shelter getShelter() {
@@ -33,7 +42,6 @@ public class Animal {
         this.idAnimal = idAnimal;
     }
 
-
     public String getName() {
         return name;
     }
@@ -50,19 +58,15 @@ public class Animal {
         this.age = age;
     }
 
-    public Animal(Long idAnimal, String name, int age, Shelter shelter) {
-        this.idAnimal = idAnimal;
-        this.name = name;
-        this.age = age;
-        this.shelter = shelter;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Animal animal = (Animal) o;
-        return age == animal.age && Objects.equals(idAnimal, animal.idAnimal) && Objects.equals(name, animal.name) && Objects.equals(shelter, animal.shelter);
+        return age == animal.age
+                && Objects.equals(idAnimal, animal.idAnimal)
+                && Objects.equals(name, animal.name)
+                && Objects.equals(shelter, animal.shelter);
     }
 
     @Override
