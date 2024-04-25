@@ -11,8 +11,10 @@ public class Constants {
     public static final String SAFETY_BUTTON = "SAFETY_BUTTON";
     public static final String CONTACTS_BUTTON = "CONTACTS_BUTTON";
     public static final String CHOOSE_PET_BUTTON = "CHOOSE_PET_BUTTON";
-    public static final String RULES_BUTTON = "RULES_BUTTON";
+
+    // Recommendations
     public static final String RECOMMENDATIONS_BUTTON = "RECOMMENDATIONS_BUTTON";
+    public static final String RULES_BUTTON = "RULES_BUTTON";
     public static final String ADVICES_DOG_HANDLER_BUTTON = "ADVICES_DOG_HANDLER_BUTTON";
     public static final String REASONS_FOR_REFUSAL_BUTTON = "REASONS_FOR_REFUSAL_BUTTON";
     public static final String TRANSPORTATION_BUTTON = "TRANSPORTATION_BUTTON";
@@ -21,6 +23,7 @@ public class Constants {
     public static final String HOME_BUTTON = "HOME_BUTTON";
     public static final String DOG_HANDLER_BUTTON = "DOG_HANDLER_BUTTON";
     public static final String ANIMALS_WITH_DISABILITIES_HOME_BUTTON = "ANIMALS_WITH_DISABILITIES_HOME_BUTTON";
+    public static final String DOCUMENTS_BUTTON = "DOCUMENTS_BUTTON";
 
     public static final String MESSAGE_START = """
             Привет! Рад вас здесь видеть!

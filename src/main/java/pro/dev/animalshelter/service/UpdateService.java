@@ -110,16 +110,16 @@ public class UpdateService {
                 telegramBotSender.send(chatId, "Здесь будет список животных");
                 break;
 
+            case RECOMMENDATIONS_BUTTON:
+                InlineKeyboardMarkup markupRecommendations = inlineKeyboardMarkupCreator.createKeyboardRecommendation();
+                telegramBotSender.send(chatId, MESSAGE_RECOMMENDATIONS, markupRecommendations);
+                break;
+
             case RULES_BUTTON:
                 telegramBotSender.send(
                         chatId,
                         "Здесь будут правила знакомства с животным до того, как забрать его из приюта"
                 );
-                break;
-
-            case RECOMMENDATIONS_BUTTON:
-                InlineKeyboardMarkup markupRecommendations = inlineKeyboardMarkupCreator.createKeyboardRecommendation();
-                telegramBotSender.send(chatId, MESSAGE_RECOMMENDATIONS, markupRecommendations);
                 break;
 
             case TRANSPORTATION_BUTTON:
