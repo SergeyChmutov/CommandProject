@@ -4,13 +4,15 @@ import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
-import com.pengrad.telegrambot.request.SendMessage;
 import org.springframework.stereotype.Service;
+import pro.dev.animalshelter.enums.RecommendationType;
 import pro.dev.animalshelter.enums.ShelterInformationProperty;
+import pro.dev.animalshelter.exception.RecommendationInformationNotFoundException;
+import pro.dev.animalshelter.exception.RecommendationTypeErrorNameException;
+import pro.dev.animalshelter.interfaces.RecommendationInformationInterface;
 import pro.dev.animalshelter.interfaces.ShelterService;
 import pro.dev.animalshelter.model.Shelter;
 import pro.dev.animalshelter.model.ShelterInformation;
-import pro.dev.animalshelter.model.Users;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,24 +26,27 @@ public class UpdateService {
     private final ShelterService shelterService;
     private final ShelterInformationService informationService;
     private final InlineKeyboardMarkupCreator inlineKeyboardMarkupCreator;
+    private final RecommendationInformationInterface recommendationService;
     private final Map<Long, Long> userCurrentShelterId = new HashMap<>();
 
     public UpdateService(
             TelegramBotSender telegramBotSender,
             InlineKeyboardMarkupCreator inlineKeyboardMarkupCreator,
             UserService userService, ShelterService shelterService,
-            ShelterInformationService informationService
+            ShelterInformationService informationService,
+            RecommendationInformationInterface recommendationService
     ) {
         this.telegramBotSender = telegramBotSender;
         this.inlineKeyboardMarkupCreator = inlineKeyboardMarkupCreator;
         this.userService = userService;
         this.shelterService = shelterService;
         this.informationService = informationService;
+        this.recommendationService = recommendationService;
     }
 
     public void processUpdate(Update update) {
         Message message = update.message();
-        CallbackQuery callbackQuery = update.callbackQuery();
+
         if (message != null && message.text() != null && message.text().equals("/start")) {
 
             Long chatId = update.message().chat().id();
@@ -54,15 +59,18 @@ public class UpdateService {
                 telegramBotSender.send(chatId, MESSAGE_CHOOSE_SHELTERS, markupChooseShelters);
             }
 
-        } else if (callbackQuery != null) {
-            String data = callbackQuery.data();
-            Long chatId = callbackQuery.maybeInaccessibleMessage().chat().id();
+        } else if (update.callbackQuery() != null) {
 
-            chooseCommand(data, chatId);
+            chooseCommand(update);
+
         }
     }
 
-    private void chooseCommand(String data, Long chatId) {
+    private void chooseCommand(Update update) {
+        final CallbackQuery callbackQuery = update.callbackQuery();
+        String data = callbackQuery.data();
+        final Long chatId = callbackQuery.maybeInaccessibleMessage().chat().id();
+
         switch (data) {
             case INFORMATION_ABOUT_SHELTERS_BUTTON:
                 InlineKeyboardMarkup markupChooseShelters = inlineKeyboardMarkupCreator.createKeyboardChooseShelters();
@@ -116,55 +124,15 @@ public class UpdateService {
                 break;
 
             case RULES_BUTTON:
-                telegramBotSender.send(
-                        chatId,
-                        "Здесь будут правила знакомства с животным до того, как забрать его из приюта"
-                );
-                break;
-
             case TRANSPORTATION_BUTTON:
-                telegramBotSender.send(chatId, "Здесь будут рекомендации по транспортировке животного");
-                break;
-
             case HOME_BUTTON:
-                InlineKeyboardMarkup markupHomeRecommendations = inlineKeyboardMarkupCreator.createKeyboardHomeRecommendation();
-                telegramBotSender.send(chatId, MESSAGE_HOME_RECOMMENDATIONS, markupHomeRecommendations);
-                break;
-
             case PUPPY_HOME_BUTTON:
-                telegramBotSender.send(chatId, "Здесь будут рекомендации по обустройству дома для щенка");
-                break;
-
             case DOG_HOME_BUTTON:
-                telegramBotSender.send(
-                        chatId,
-                        "Здесь будут рекомендации по обустройству дома для взрослого животного"
-                );
-                break;
-
             case ANIMALS_WITH_DISABILITIES_HOME_BUTTON:
-                telegramBotSender.send(
-                        chatId,
-                        "Здесь будут рекомендации по обустройству дома для животного с ограниченными возможностями (зрение, передвижение)"
-                );
-                break;
-
             case DOG_HANDLER_BUTTON:
-                telegramBotSender.send(
-                        chatId,
-                        "Здесь будут рекомендации по проверенным кинологам для дальнейшего обращения к ним"
-                );
-                break;
-
             case ADVICES_DOG_HANDLER_BUTTON:
-                telegramBotSender.send(chatId, "Здесь будут советы кинолога по первичному общению с собакой");
-                break;
-
             case REASONS_FOR_REFUSAL_BUTTON:
-                telegramBotSender.send(
-                        chatId,
-                        "Здесь будут список причин, почему могут отказать и не дать забрать собаку из приюта"
-                );
+                updateRecommendationInformationCommands(update);
                 break;
 
             case CONTACTS_BUTTON:
@@ -184,5 +152,57 @@ public class UpdateService {
         InlineKeyboardMarkup markupInformationAboutShelter = inlineKeyboardMarkupCreator.createKeyboardInformationAboutShelter();
         String message = "Добро пожаловать в приют " + shelter.getName() + "! " + MESSAGE_INFORMATION_ABOUT_SHELTER;
         telegramBotSender.send(chatId, message, markupInformationAboutShelter);
+    }
+
+    private void updateRecommendationInformationCommands(Update update) {
+        final CallbackQuery callbackQuery = update.callbackQuery();
+        String data = callbackQuery.data();
+        final Long chatId = callbackQuery.maybeInaccessibleMessage().chat().id();
+        final Integer messageId = callbackQuery.maybeInaccessibleMessage().messageId();
+
+        String information = getRecommendationInformationByCommand(data);
+
+    }
+
+    private String getRecommendationInformationByCommand(String command) {
+        String recommendation = "";
+        try {
+            recommendation = switch (command) {
+                case RULES_BUTTON -> recommendationService.getInformationBy(
+                        RecommendationType.DATING_RULES.getTypeName()
+                ).getInformation();
+                case TRANSPORTATION_BUTTON -> recommendationService.getInformationBy(
+                        RecommendationType.TRANSPORTATIONS.getTypeName()
+                ).getInformation();
+                case HOME_BUTTON -> recommendationService.getInformationBy(
+                        RecommendationType.DOCUMENTS.getTypeName()
+                ).getInformation();
+                case PUPPY_HOME_BUTTON -> recommendationService.getInformationBy(
+                        RecommendationType.PUPPY_HOME.getTypeName()
+                ).getInformation();
+                case DOG_HOME_BUTTON -> recommendationService.getInformationBy(
+                        RecommendationType.DOG_HOME.getTypeName()
+                ).getInformation();
+                case ANIMALS_WITH_DISABILITIES_HOME_BUTTON -> recommendationService.getInformationBy(
+                        RecommendationType.DISABILITIES.getTypeName()
+                ).getInformation();
+                case DOG_HANDLER_BUTTON -> recommendationService.getInformationBy(
+                        RecommendationType.DOG_HANDLER.getTypeName()
+                ).getInformation();
+                case ADVICES_DOG_HANDLER_BUTTON -> recommendationService.getInformationBy(
+                        RecommendationType.ADVICES_DOG_HANDLER.getTypeName()
+                ).getInformation();
+                case REASONS_FOR_REFUSAL_BUTTON -> recommendationService.getInformationBy(
+                        RecommendationType.REASONS_REFUSAL.getTypeName()
+                ).getInformation();
+                default -> "";
+            };
+        } catch (RecommendationInformationNotFoundException e) {
+            recommendation = "Такая информация на текущий момент не занесена";
+        } catch (RecommendationTypeErrorNameException e) {
+            recommendation = "Информация такого типа мне не известна";
+        }
+
+        return recommendation;
     }
 }

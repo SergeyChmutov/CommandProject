@@ -28,11 +28,11 @@ public class RecommendationInformationController {
     }
 
     @PostMapping
-    public RecommendationInformation addRecommendation(
+    public RecommendationInformationDTO addRecommendation(
             @RequestParam(name = "type") String typeName,
             @RequestParam(name = "information") String information
     ) {
-        return service.createRecommendationInformation(typeName, information);
+        return mapper.mapToDTO(service.createRecommendationInformation(typeName, information));
     }
 
     @GetMapping
@@ -43,15 +43,15 @@ public class RecommendationInformationController {
     }
 
     @DeleteMapping("/{type}")
-    public RecommendationInformation deleteRecommendation(@PathVariable(name = "type") String typeName) {
-        return service.deleteRecommendationInformation(typeName);
+    public RecommendationInformationDTO deleteRecommendation(@PathVariable(name = "type") String typeName) {
+        return mapper.mapToDTO(service.deleteRecommendationInformation(typeName));
     }
 
     @PutMapping()
-    public RecommendationInformation updateRecommendation(
+    public RecommendationInformationDTO updateRecommendation(
             @RequestParam(name = "type") String typeName,
             @RequestParam(name = "information") String information
     ) {
-        return service.updateRecommendationInformation(typeName, information);
+        return mapper.mapToDTO(service.updateRecommendationInformation(typeName, information));
     }
 }
