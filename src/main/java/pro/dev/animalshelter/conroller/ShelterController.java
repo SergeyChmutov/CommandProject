@@ -33,8 +33,8 @@ public class ShelterController {
     }
 
     @PutMapping("/{id}")
-    public Shelter update(@PathVariable Long id, @RequestBody Shelter faculty) {
-        return shelterService.updateShelter(id, faculty);
+    public Shelter update(@PathVariable Long id, @RequestBody Shelter shelter) {
+        return shelterService.updateShelter(id, shelter);
     }
 
     @GetMapping("{id}/volunteers")
