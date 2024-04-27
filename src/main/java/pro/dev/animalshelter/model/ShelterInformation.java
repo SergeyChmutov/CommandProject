@@ -15,6 +15,10 @@ public class ShelterInformation {
     private ShelterInformation() {
     }
 
+    public ShelterInformation(String description) {
+        this.description = description;
+    }
+
     public ShelterInformation(
             Shelter shelter,
             ShelterInformationProperty shelterInformationProperty,
