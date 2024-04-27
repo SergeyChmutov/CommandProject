@@ -12,4 +12,6 @@ public interface TravelDirectionsInterface {
     void uploadTravelDirections(Long id, MultipartFile travelDirectionsFile) throws IOException;
 
     ResponseEntity<byte[]> downloadTravelDirectionsFromDb(Long id);
+
+    byte[] downloadTravelDirectionsDataFromDb(Long id);
 }

@@ -2,6 +2,7 @@ package pro.dev.animalshelter.service;
 
 import org.springframework.stereotype.Service;
 import pro.dev.animalshelter.enums.ShelterInformationProperty;
+import pro.dev.animalshelter.exception.ShelterInformationNotFoundException;
 import pro.dev.animalshelter.interfaces.ShelterInformationInterface;
 import pro.dev.animalshelter.model.Shelter;
 import pro.dev.animalshelter.model.ShelterInformation;
@@ -33,6 +34,9 @@ public class ShelterInformationService implements ShelterInformationInterface {
         return repository.findByPkShelterIdAndPkShelterInformationProperty(
                 id,
                 ShelterInformationProperty.getPropertyByName(propertyName.toUpperCase())
-        ).orElseThrow(RuntimeException::new);
+        ).orElseThrow(
+                () -> new ShelterInformationNotFoundException(
+                        "Не заполнена информация по свойству " + propertyName + " приюта с идентификатором " + id)
+        );
     }
 }

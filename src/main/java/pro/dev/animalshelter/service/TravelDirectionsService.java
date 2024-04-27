@@ -6,6 +6,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import pro.dev.animalshelter.exception.TravelDirectionsNotFoundException;
 import pro.dev.animalshelter.interfaces.ShelterService;
 import pro.dev.animalshelter.interfaces.TravelDirectionsInterface;
 import pro.dev.animalshelter.model.Shelter;
@@ -13,6 +14,7 @@ import pro.dev.animalshelter.model.TravelDirections;
 import pro.dev.animalshelter.repository.TravelDirectionsRepository;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Service
 public class TravelDirectionsService implements TravelDirectionsInterface {
@@ -25,7 +27,9 @@ public class TravelDirectionsService implements TravelDirectionsInterface {
     }
 
     public TravelDirections getTravelDirectionsByShelterId(Long id) {
-        return repository.findByShelterId(id).orElseThrow(RuntimeException::new);
+        return repository.findByShelterId(id).orElseThrow(
+                () -> new TravelDirectionsNotFoundException("Не найдена схема проезда для приюта с индентификатором " + id)
+        );
     }
 
     public void uploadTravelDirections(Long id, MultipartFile travelDirectionsFile) throws IOException {
@@ -61,5 +65,15 @@ public class TravelDirectionsService implements TravelDirectionsInterface {
 
     private TravelDirections findTravelDirectoriesByShelterIdOrCreateWhenNotFound(Long id) {
         return repository.findByShelterId(id).orElse(new TravelDirections());
+    }
+
+    @Override
+    public byte[] downloadTravelDirectionsDataFromDb(Long id) {
+        Optional<TravelDirections> travelDirections = repository.findByShelterId(id);
+        if (travelDirections.isPresent()) {
+            return travelDirections.get().getData();
+        } else {
+            throw new TravelDirectionsNotFoundException("Информация по схеме проезда для приюта не указана");
+        }
     }
 }

@@ -7,7 +7,8 @@ public enum ShelterInformationProperty {
     ABOUT("ABOUT"),
     ADDRESS("ADDRESS"),
     PASS("PASS"),
-    SAFETY("SAFETY");
+    SAFETY("SAFETY"),
+    SCHEDULE("SCHEDULE");
 
     private final String propertyName;
 
