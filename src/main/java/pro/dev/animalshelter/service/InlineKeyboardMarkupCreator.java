@@ -59,15 +59,16 @@ public class InlineKeyboardMarkupCreator {
 
     public InlineKeyboardMarkup createKeyboardChooseShelters() {
         List<List<InlineKeyboardButton>> keyboardShelters = new ArrayList<>();
-        for (Shelter shelter :
-                shelterService.getShelters()) {
-            List<InlineKeyboardButton> buttonsRow = new ArrayList<>();
-            InlineKeyboardButton button = new InlineKeyboardButton(shelter.getName());
-            button.callbackData(Long.toString(shelter.getId()));
-
-            buttonsRow.add(button);
-            keyboardShelters.add(buttonsRow);
+        for (Shelter shelter : shelterService.getShelters()) {
+            keyboardShelters.add(
+                    Collections.singletonList(new InlineKeyboardButton(shelter.getName())
+                            .callbackData(Long.toString(shelter.getId())))
+            );
         }
+
+        keyboardShelters.add(Collections.singletonList(new InlineKeyboardButton("Основное меню")
+                .callbackData(MAIN_MENU_BUTTON)));
+
         InlineKeyboardMarkup markupShelters = getInlineKeyboardMarkup(keyboardShelters);
         return markupShelters;
     }
@@ -75,7 +76,7 @@ public class InlineKeyboardMarkupCreator {
     public InlineKeyboardMarkup createKeyboardInformationAboutShelter() {
         List<List<InlineKeyboardButton>> keyboardWetNose = Arrays.asList(
                 Collections.singletonList(new InlineKeyboardButton("Расписание работы")
-                        .callbackData(SСHEDULE_SHELTER_BUTTON)),
+                        .callbackData(SCHEDULE_SHELTER_BUTTON)),
                 Arrays.asList(
                         new InlineKeyboardButton("О приюте")
                                 .callbackData(ABOUT_SHELTER_BUTTON),
@@ -91,7 +92,9 @@ public class InlineKeyboardMarkupCreator {
                 Collections.singletonList(new InlineKeyboardButton("Оставить контактные данные для связи")
                         .callbackData(CONTACTS_BUTTON)),
                 Collections.singletonList(new InlineKeyboardButton("Позвать волонтера")
-                        .callbackData(VOLUNTEER_BUTTON))
+                        .callbackData(VOLUNTEER_BUTTON)),
+                Collections.singletonList(new InlineKeyboardButton("Основное меню")
+                        .callbackData(MAIN_MENU_BUTTON))
         );
 
         InlineKeyboardMarkup markupShelter = getInlineKeyboardMarkup(keyboardWetNose);
@@ -123,7 +126,9 @@ public class InlineKeyboardMarkupCreator {
                 Collections.singletonList(new InlineKeyboardButton("Оставить контакты для связи")
                         .callbackData(CONTACTS_BUTTON)),
                 Collections.singletonList(new InlineKeyboardButton("Позвать волонтера")
-                        .callbackData(VOLUNTEER_BUTTON))
+                        .callbackData(VOLUNTEER_BUTTON)),
+                Collections.singletonList(new InlineKeyboardButton("Основное меню")
+                        .callbackData(MAIN_MENU_BUTTON))
         );
 
         InlineKeyboardMarkup markupInformationAboutPets = getInlineKeyboardMarkup(keyboardInformationAboutPets);

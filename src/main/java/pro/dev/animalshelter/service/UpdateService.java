@@ -104,7 +104,7 @@ public class UpdateService {
             case PASS_SHELTER_BUTTON:
             case ROADMAP_SHELTER_BUTTON:
             case SAFETY_SHELTER_BUTTON:
-            case SСHEDULE_SHELTER_BUTTON:
+            case SCHEDULE_SHELTER_BUTTON:
                 updateShelterInformationCommands(update);
                 break;
 
@@ -128,8 +128,12 @@ public class UpdateService {
                 telegramBotSender.send(chatId, "Здесь можно будет оставить контактные данные для связи");
                 break;
 
+            case MAIN_MENU_BUTTON:
+                showMainMenu(chatId, messageId);
+                break;
+
             default:
-                sendShelterMessage(chatId, data);
+                sendShelterMessage(chatId, messageId, data);
                 break;
         }
     }
@@ -139,13 +143,13 @@ public class UpdateService {
         telegramBotSender.editMessageText(chatId, messageId, MESSAGE_CHOOSE_SHELTERS, markupChooseShelters);
     }
 
-    private void sendShelterMessage(Long chatId, String data) {
+    private void sendShelterMessage(Long chatId, Integer messageId, String data) {
         long shelterId = Long.parseLong(data);
         userCurrentShelterId.put(chatId, shelterId);
         Shelter shelter = shelterService.getShelter(shelterId);
         InlineKeyboardMarkup markupInformationAboutShelter = inlineKeyboardMarkupCreator.createKeyboardInformationAboutShelter();
         String message = "Добро пожаловать в приют " + shelter.getName() + "! " + MESSAGE_INFORMATION_ABOUT_SHELTER;
-        telegramBotSender.send(chatId, message, markupInformationAboutShelter);
+        telegramBotSender.editMessageText(chatId, messageId, message, markupInformationAboutShelter);
     }
 
     private void updateRecommendationInformationCommands(Update update) {
@@ -205,6 +209,7 @@ public class UpdateService {
         final CallbackQuery callbackQuery = update.callbackQuery();
         final Long chatId = callbackQuery.maybeInaccessibleMessage().chat().id();
         final Integer messageId = callbackQuery.maybeInaccessibleMessage().messageId();
+        InlineKeyboardMarkup markup = callbackQuery.message().replyMarkup();
 
         final Long shelterId = userCurrentShelterId.get(chatId);
 
@@ -216,7 +221,7 @@ public class UpdateService {
         String data = callbackQuery.data();
 
         if (data.equals(ROADMAP_SHELTER_BUTTON)) {
-            sendRoadmap(shelterId, chatId, messageId, callbackQuery);
+            sendRoadmapInformation(shelterId, chatId, messageId, markup);
         } else {
             ShelterInformation information = getShelterInformationByCommand(shelterId, data);
             telegramBotSender.editMessageText(
@@ -248,7 +253,7 @@ public class UpdateService {
                         shelterId,
                         ShelterInformationProperty.SAFETY.getPropertyName()
                 );
-                case SСHEDULE_SHELTER_BUTTON -> informationService.getPropertyByShelterAndName(
+                case SCHEDULE_SHELTER_BUTTON -> informationService.getPropertyByShelterAndName(
                         shelterId,
                         ShelterInformationProperty.SCHEDULE.getPropertyName()
                 );
@@ -263,17 +268,24 @@ public class UpdateService {
         return information;
     }
 
-    private void sendRoadmap(Long shelterId, Long chatId, Integer messageId, CallbackQuery callbackQuery) {
+    private void sendRoadmapInformation(Long shelterId, Long chatId, Integer messageId, InlineKeyboardMarkup markup) {
         try {
             byte[] roadmap = travelDirectionsService.downloadTravelDirectionsDataFromDb(shelterId);
-            telegramBotSender.sendPhoto(chatId, messageId, roadmap, callbackQuery.message().replyMarkup());
+            telegramBotSender.deleteMessage(chatId, messageId);
+            telegramBotSender.sendPhoto(chatId, roadmap);
+            telegramBotSender.send(chatId, MESSAGE_INFORMATION_ABOUT_SHELTER, markup);
         } catch (TravelDirectionsNotFoundException e) {
             telegramBotSender.editMessageText(
                     chatId,
                     messageId,
-                    "Информация по схеме проезда для приюта не указана",
-                    callbackQuery.message().replyMarkup()
+                    "Информация о схеме проезда для приюта не указана",
+                    markup
             );
         }
+    }
+
+    private void showMainMenu(Long chatId, Integer messageId) {
+        InlineKeyboardMarkup markupStart = inlineKeyboardMarkupCreator.createKeyboardStart();
+        telegramBotSender.editMessageText(chatId, messageId, MESSAGE_RETURN, markupStart);
     }
 }

@@ -1,9 +1,11 @@
 package pro.dev.animalshelter.service;
 
 import com.pengrad.telegrambot.TelegramBot;
-import com.pengrad.telegrambot.model.PhotoSize;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
-import com.pengrad.telegrambot.request.*;
+import com.pengrad.telegrambot.request.DeleteMessage;
+import com.pengrad.telegrambot.request.EditMessageText;
+import com.pengrad.telegrambot.request.SendMessage;
+import com.pengrad.telegrambot.request.SendPhoto;
 import com.pengrad.telegrambot.response.BaseResponse;
 import com.pengrad.telegrambot.response.SendResponse;
 import org.slf4j.Logger;
@@ -39,37 +41,40 @@ public class TelegramBotSender {
         sendEditedMessage(message, editMessage);
     }
 
-    public void sendPhoto(Long chatId, Integer messageId, byte[] photo, InlineKeyboardMarkup markup) {
-        telegramBot.execute(new DeleteMessage(chatId, messageId));
-        SendPhoto photoMessage = new SendPhoto(chatId, photo)
-                .replyMarkup(markup);
+    public void sendPhoto(Long chatId, byte[] photo) {
+        SendPhoto photoMessage = new SendPhoto(chatId, photo);
         sendPhotoMessage(chatId, photoMessage);
+    }
+
+    public void deleteMessage(Long chatId, Integer messageId) {
+        BaseResponse response = telegramBot.execute(new DeleteMessage(chatId, messageId));
+        if (response.isOk()) {
+            logger.info("Успешно удалено сообщение {} из чата {}", messageId, chatId);
+        } else {
+            logger.error("Ошибка при удалении сообщения {} из чата {}: {}", messageId, chatId, response.description());
+        }
     }
 
     private void sendMessage(String message, SendMessage sendMessage) {
         SendResponse response = telegramBot.execute(sendMessage);
-        if (response.isOk()) {
-            logger.info("Успешно отправлено сообщение: {}", message);
-        } else {
-            logger.error("Ошибка в отправке сообщения: {}", response.errorCode());
-        }
+        loggingTelegramBotSendMessage(message, response);
     }
 
     private void sendEditedMessage(String message, EditMessageText editMessage) {
         SendResponse response = (SendResponse) telegramBot.execute(editMessage);
-        if (response.isOk()) {
-            logger.info("Успешно отправлено сообщение: {}", message);
-        } else {
-            logger.error("Ошибка в отправке сообщения: {}", response.description());
-        }
+        loggingTelegramBotSendMessage(message, response);
     }
 
     private void sendPhotoMessage(Long chatId, SendPhoto photoMessage) {
         SendResponse response = (SendResponse) telegramBot.execute(photoMessage);
+        loggingTelegramBotSendMessage("Фото", response);
+    }
+
+    private void loggingTelegramBotSendMessage(String message, BaseResponse response) {
         if (response.isOk()) {
-            logger.info("Успешно отправлено сообщение: {}", photoMessage);
+            logger.info("Успешно отправлено сообщение: {}", message);
         } else {
-            logger.error("Ошибка в отправке сообщения: {}", response.description());
+            logger.error("Ошибка в отправке сообщения: {}", response.errorCode());
         }
     }
 }

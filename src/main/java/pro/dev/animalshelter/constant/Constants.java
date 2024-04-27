@@ -6,7 +6,7 @@ public class Constants {
     public static final String INFORMATION_ABOUT_SHELTERS_BUTTON = "INFORMATION_ABOUT_SHELTERS_BUTTON";
     public static final String ABOUT_SHELTER_BUTTON = "ABOUT_SHELTER_BUTTON";
     public static final String ADDRESS_SHELTER_BUTTON = "ADDRESS_SHELTER_BUTTON";
-    public static final String SСHEDULE_SHELTER_BUTTON = "SСHEDULE_SHELTER_BUTTON";
+    public static final String SCHEDULE_SHELTER_BUTTON = "SCHEDULE_SHELTER_BUTTON";
     public static final String ROADMAP_SHELTER_BUTTON = "ROADMAP_SHELTER_BUTTON";
     public static final String PASS_SHELTER_BUTTON = "PASS_SHELTER_BUTTON";
     public static final String SAFETY_SHELTER_BUTTON = "SAFETY_SHELTER_BUTTON";
@@ -16,6 +16,7 @@ public class Constants {
     public static final String VOLUNTEER_BUTTON = "VOLUNTEER_BUTTON";
     public static final String CONTACTS_BUTTON = "CONTACTS_BUTTON";
     public static final String CHOOSE_PET_BUTTON = "CHOOSE_PET_BUTTON";
+    public static final String MAIN_MENU_BUTTON = "MAIN_MENU_BUTTON";
 
     // Recommendations
     public static final String RULES_BUTTON = "RULES_BUTTON";
