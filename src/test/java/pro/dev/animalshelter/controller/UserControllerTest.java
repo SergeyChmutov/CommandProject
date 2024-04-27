@@ -1,4 +1,4 @@
-package pro.dev.animalshelter;
+package pro.dev.animalshelter.controller;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
