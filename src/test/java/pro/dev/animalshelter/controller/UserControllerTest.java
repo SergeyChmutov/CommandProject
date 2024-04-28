@@ -8,7 +8,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import pro.dev.animalshelter.conroller.UserController;
 import pro.dev.animalshelter.model.Users;
-import pro.dev.animalshelter.service.SheltersServiceImpl;
+import pro.dev.animalshelter.service.impl.SheltersServiceImpl;
 import pro.dev.animalshelter.service.UserService;
 
 import java.util.ArrayList;

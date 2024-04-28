@@ -50,11 +50,11 @@ public class Animal {
         this.nameAnimal = nameAnimal;
     }
 
-    public int getAge() {
+    public int getAgeAnimal() {
         return ageAnimal;
     }
 
-    public void setAge(int age) {
+    public void setAgeAnimal(int ageAnimal) {
         this.ageAnimal = ageAnimal;
     }
 

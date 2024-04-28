@@ -1,4 +1,4 @@
-package pro.dev.animalshelter.service;
+package pro.dev.animalshelter.service.impl;
 
 import org.springframework.stereotype.Service;
 import pro.dev.animalshelter.exception.AdoptionNotFoundException;
