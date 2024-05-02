@@ -4,6 +4,7 @@ import pro.dev.animalshelter.model.AdoptionReport;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.Optional;
 
 public interface AdoptionReportInterface {
     AdoptionReport createAdoptionReport(
@@ -23,6 +24,8 @@ public interface AdoptionReportInterface {
     );
 
     AdoptionReport deleteAdoptionReport(Long adoptionId, LocalDate reportDate);
+
+    Optional<AdoptionReport> getAdoptionReport(Long adoptionId, LocalDate reportDate);
 
     Collection<AdoptionReport> getAdoptionReportsByAdoptionId(Long adoptionId);
 }
