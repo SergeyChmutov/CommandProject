@@ -35,12 +35,21 @@ public class Constants {
             Я бот, который поможет вам взаимодействовать с приютами для собачек!
             Чем я могу помочь? Для начала выберите информацию о каком приюте Вы хотели бы получить:
             """;
+
+    public static final String MESSAGE_SORRY = """
+            Извините, я ограничен в возможностях общения! Для общения со мной используйте меню.
+            Если в меню нет информации, которая Вас интересует, используйте пункт меню \"Позвать волонтера\"
+            """;
+
+    public static final String MESSAGE_CONTACT_INFORMATION_HELP = """
+            Укажите телефон в формате +7-9**-***-**-** и имя для связи
+            (например, +7-912-345-67-89 Иван) или команду \\start для возврата в основное меню:
+            """;
+
     public static final String MESSAGE_RETURN = "Привет! Рад Вас снова видеть! Выберите команду:";
     public static final String MESSAGE_CHOOSE_SHELTERS = "Информацию о каком приюте Вы хотели бы получить?";
     public static final String MESSAGE_INFORMATION_ABOUT_SHELTER = "Здесь вы можете получить следующую информацию:";
     public static final String MESSAGE_INFORMATION_ABOUT_PETS = "Здесь я помогу вам разобраться с бюрократическими и бытовыми вопросами. Что вас интересует?";
-    public static final String MESSAGE_RECOMMENDATIONS = "Здесь вы можете получить следующие рекомендации:";
-    public static final String MESSAGE_HOME_RECOMMENDATIONS = "Здесь вы можете получить рекомендации по обустройству дома в зависимости от особенностей собаки:";
     public static final String MESSAGE_SEND_REPORT = "Сюда можно будет прислать отчет о питомце";
     public static final String MESSAGE_VOLUNTEER = "Здесь можно будет позвать волонтера";
 }

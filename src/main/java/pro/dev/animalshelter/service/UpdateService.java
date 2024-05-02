@@ -7,6 +7,7 @@ import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import org.springframework.stereotype.Service;
 import pro.dev.animalshelter.enums.RecommendationType;
 import pro.dev.animalshelter.enums.ShelterInformationProperty;
+import pro.dev.animalshelter.enums.UserMessageStatus;
 import pro.dev.animalshelter.exception.*;
 import pro.dev.animalshelter.interfaces.RecommendationInformationInterface;
 import pro.dev.animalshelter.interfaces.ShelterInformationInterface;
@@ -14,9 +15,12 @@ import pro.dev.animalshelter.interfaces.ShelterService;
 import pro.dev.animalshelter.interfaces.TravelDirectionsInterface;
 import pro.dev.animalshelter.model.Shelter;
 import pro.dev.animalshelter.model.ShelterInformation;
+import pro.dev.animalshelter.model.Users;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static pro.dev.animalshelter.constant.Constants.*;
 
@@ -30,6 +34,7 @@ public class UpdateService {
     private final InlineKeyboardMarkupCreator inlineKeyboardMarkupCreator;
     private final RecommendationInformationInterface recommendationService;
     private final Map<Long, Long> userCurrentShelterId = new HashMap<>();
+    private final Map<Long, UserMessageStatus> userCurrentMessageStatus = new HashMap<>();
 
     public UpdateService(
             TelegramBotSender telegramBotSender,
@@ -51,16 +56,12 @@ public class UpdateService {
     public void processUpdate(Update update) {
         Message message = update.message();
 
-        if (message != null && message.text() != null && message.text().equals("/start")) {
+        if (message != null && message.text() != null) {
 
-            Long chatId = update.message().chat().id();
-            if (!userService.existsById(chatId)) {
-                userService.addUser(chatId, update.message().chat().firstName(), null);
-                InlineKeyboardMarkup markupChooseShelters = inlineKeyboardMarkupCreator.createKeyboardChooseShelters();
-                telegramBotSender.send(chatId, MESSAGE_START, markupChooseShelters);
+            if (message.text().equals("/start")) {
+                processStartCommand(update);
             } else {
-                InlineKeyboardMarkup markupStart = inlineKeyboardMarkupCreator.createKeyboardStart();
-                telegramBotSender.send(chatId, MESSAGE_RETURN, markupStart);
+                processUserUpdate(update);
             }
 
         } else if (update.callbackQuery() != null) {
@@ -68,6 +69,22 @@ public class UpdateService {
             chooseCommand(update);
 
         }
+    }
+
+    private void processStartCommand(Update update) {
+        Message message = update.message();
+        Long chatId = message.chat().id();
+
+        if (!userService.existsById(chatId)) {
+            userService.addUser(chatId, update.message().chat().firstName(), null);
+            InlineKeyboardMarkup markupChooseShelters = inlineKeyboardMarkupCreator.createKeyboardChooseShelters();
+            telegramBotSender.send(chatId, MESSAGE_START, markupChooseShelters);
+        } else {
+            InlineKeyboardMarkup markupStart = inlineKeyboardMarkupCreator.createKeyboardStart();
+            telegramBotSender.send(chatId, MESSAGE_RETURN, markupStart);
+        }
+
+        userCurrentMessageStatus.remove(chatId);
     }
 
     private void chooseCommand(Update update) {
@@ -125,11 +142,11 @@ public class UpdateService {
                 break;
 
             case CONTACTS_BUTTON:
-                telegramBotSender.send(chatId, "Здесь можно будет оставить контактные данные для связи");
+                getUserContactsInformation(update);
                 break;
 
             case MAIN_MENU_BUTTON:
-                showMainMenu(chatId, messageId);
+                returnToMainMenu(chatId, messageId);
                 break;
 
             default:
@@ -211,12 +228,12 @@ public class UpdateService {
         final Integer messageId = callbackQuery.maybeInaccessibleMessage().messageId();
         InlineKeyboardMarkup markup = callbackQuery.message().replyMarkup();
 
-        final Long shelterId = userCurrentShelterId.get(chatId);
-
-        if (shelterId == null) {
+        if (!userCurrentShelterId.containsKey(chatId)) {
             chooseShelters(chatId, messageId);
             return;
         }
+
+        final Long shelterId = userCurrentShelterId.get(chatId);
 
         String data = callbackQuery.data();
 
@@ -284,8 +301,70 @@ public class UpdateService {
         }
     }
 
-    private void showMainMenu(Long chatId, Integer messageId) {
+    private void returnToMainMenu(Long chatId, Integer messageId) {
         InlineKeyboardMarkup markupStart = inlineKeyboardMarkupCreator.createKeyboardStart();
         telegramBotSender.editMessageText(chatId, messageId, MESSAGE_RETURN, markupStart);
+    }
+
+    private void showMainMenu(Long chatId) {
+        InlineKeyboardMarkup markupStart = inlineKeyboardMarkupCreator.createKeyboardStart();
+        telegramBotSender.send(chatId, MESSAGE_RETURN, markupStart);
+    }
+
+    private void getUserContactsInformation(Update update) {
+        final CallbackQuery callbackQuery = update.callbackQuery();
+        final Long chatId = callbackQuery.maybeInaccessibleMessage().chat().id();
+        final Integer messageId = callbackQuery.maybeInaccessibleMessage().messageId();
+
+        telegramBotSender.deleteMessage(chatId, messageId);
+        telegramBotSender.send(chatId, MESSAGE_CONTACT_INFORMATION_HELP);
+
+        userCurrentMessageStatus.put(chatId, UserMessageStatus.CONTACT_INFORMATION_INPUT);
+    }
+
+    private void processUserUpdate(Update update) {
+        final Message message = update.message();
+        final Long chatId = message.chat().id();
+
+        if (!userCurrentMessageStatus.containsKey(chatId)) {
+            telegramBotSender.send(chatId, MESSAGE_SORRY);
+            return;
+        }
+
+        UserMessageStatus userMessageStatus = userCurrentMessageStatus.get(chatId);
+
+        switch (userMessageStatus) {
+            case SEND_REPORT:
+                break;
+            case CONTACT_INFORMATION_INPUT:
+                parseUserContactsInformation(chatId, message.text());
+        }
+    }
+
+    private void parseUserContactsInformation(Long chatId, String messageText) {
+        Pattern notificationPattern = Pattern.compile("(\\+7-9\\d{2}-\\d{3}-\\d{2}-\\d{2})(\\s+)(\\S+)");
+        Matcher matcher = notificationPattern.matcher(messageText);
+
+        if (!matcher.matches()) {
+            telegramBotSender.send(chatId, "Сообщение не соответствует шаблону.");
+            telegramBotSender.send(chatId, MESSAGE_CONTACT_INFORMATION_HELP);
+            return;
+        }
+
+        final String phoneNumber = matcher.group(1);
+        final String contactName = matcher.group(3);
+
+        // TODO: Решить как сохранять информацию о телефоне и имени для связи
+        if (userService.existsById(chatId)) {
+            Users user = userService.findById(chatId);
+        } else {
+            Users user = new Users();
+        }
+
+        telegramBotSender.send(chatId, "Информация для связи сохранена.");
+
+        userCurrentMessageStatus.remove(chatId);
+
+        showMainMenu(chatId);
     }
 }
