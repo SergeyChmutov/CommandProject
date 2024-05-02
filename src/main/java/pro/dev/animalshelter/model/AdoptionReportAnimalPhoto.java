@@ -20,6 +20,10 @@ public class AdoptionReportAnimalPhoto {
     public AdoptionReportAnimalPhoto() {
     }
 
+    public AdoptionReportAnimalPhoto(AdoptionReport report) {
+        this.report = report;
+    }
+
     public AdoptionReportAnimalPhoto(AdoptionReport report, Long fileSize, String mediaType, byte[] data) {
         this.report = report;
         this.fileSize = fileSize;

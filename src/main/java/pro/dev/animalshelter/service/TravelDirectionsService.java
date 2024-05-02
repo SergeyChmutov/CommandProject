@@ -26,12 +26,14 @@ public class TravelDirectionsService implements TravelDirectionsInterface {
         this.shelterService = shelterService;
     }
 
+    @Override
     public TravelDirections getTravelDirectionsByShelterId(Long id) {
         return repository.findByShelterId(id).orElseThrow(
-                () -> new TravelDirectionsNotFoundException("Не найдена схема проезда для приюта с индентификатором " + id)
+                () -> new TravelDirectionsNotFoundException("Не найдена схема проезда для приюта с идентификатором " + id)
         );
     }
 
+    @Override
     public void uploadTravelDirections(Long id, MultipartFile travelDirectionsFile) throws IOException {
         final Shelter shelter = shelterService.getShelter(id);
 
@@ -43,6 +45,7 @@ public class TravelDirectionsService implements TravelDirectionsInterface {
         repository.save(travelDirections);
     }
 
+    @Override
     public ResponseEntity<byte[]> downloadTravelDirectionsFromDb(Long id) {
         TravelDirections travelDirections = getTravelDirectionsByShelterId(id);
         HttpHeaders headers = new HttpHeaders();
@@ -53,20 +56,6 @@ public class TravelDirectionsService implements TravelDirectionsInterface {
         return ResponseEntity.status(HttpStatus.OK).headers(headers).body(travelDirections.getData());
     }
 
-    public ResponseEntity<byte[]> downloadFromDb(Long id) {
-        TravelDirections travelDirections = getTravelDirectionsByShelterId(id);
-        HttpHeaders headers = new HttpHeaders();
-
-        headers.setContentType(MediaType.parseMediaType(travelDirections.getMediaType()));
-        headers.setContentLength(travelDirections.getData().length);
-
-        return ResponseEntity.status(HttpStatus.OK).headers(headers).body(travelDirections.getData());
-    }
-
-    private TravelDirections findTravelDirectoriesByShelterIdOrCreateWhenNotFound(Long id) {
-        return repository.findByShelterId(id).orElse(new TravelDirections());
-    }
-
     @Override
     public byte[] downloadTravelDirectionsDataFromDb(Long id) {
         Optional<TravelDirections> travelDirections = repository.findByShelterId(id);
@@ -75,5 +64,9 @@ public class TravelDirectionsService implements TravelDirectionsInterface {
         } else {
             throw new TravelDirectionsNotFoundException("Информация по схеме проезда для приюта не указана");
         }
+    }
+
+    private TravelDirections findTravelDirectoriesByShelterIdOrCreateWhenNotFound(Long id) {
+        return repository.findByShelterId(id).orElse(new TravelDirections());
     }
 }

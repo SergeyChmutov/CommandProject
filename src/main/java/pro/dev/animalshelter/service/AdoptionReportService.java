@@ -79,4 +79,9 @@ public class AdoptionReportService implements AdoptionReportInterface {
     public Collection<AdoptionReport> getAdoptionReportsByAdoptionId(Long adoptionId) {
         return repository.findByPk_Adoption_IdOrderByPk_ReportDateDesc(adoptionId);
     }
+
+    @Override
+    public Optional<AdoptionReport> getAdoptionReport(Long adoptionId, LocalDate reportDate) {
+        return repository.findByPk_Adoption_IdAndPk_ReportDate(adoptionId, reportDate);
+    }
 }

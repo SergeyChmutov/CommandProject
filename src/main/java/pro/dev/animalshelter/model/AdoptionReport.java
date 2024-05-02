@@ -17,6 +17,10 @@ public class AdoptionReport {
     public AdoptionReport() {
     }
 
+    public AdoptionReport(AdoptionReportPK pk) {
+        this.pk = pk;
+    }
+
     public AdoptionReport(
             Adoption adoption,
             LocalDate reportDate,

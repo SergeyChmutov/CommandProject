@@ -1,7 +1,8 @@
 package pro.dev.animalshelter.constant;
 
-public class Constants {
+import java.time.format.DateTimeFormatter;
 
+public class Constants {
     // About shelter
     public static final String INFORMATION_ABOUT_SHELTERS_BUTTON = "INFORMATION_ABOUT_SHELTERS_BUTTON";
     public static final String ABOUT_SHELTER_BUTTON = "ABOUT_SHELTER_BUTTON";
@@ -42,7 +43,7 @@ public class Constants {
             """;
 
     public static final String MESSAGE_CONTACT_INFORMATION_HELP = """
-            Укажите телефон в формате +7-9**-***-**-** и имя для связи
+            Укажите телефон в формате +7-9XX-XXX-XX-XX и имя для связи
             (например, +7-912-345-67-89 Иван) или команду \\start для возврата в основное меню:
             """;
 
