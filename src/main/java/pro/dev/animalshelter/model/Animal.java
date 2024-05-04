@@ -26,6 +26,10 @@ public class Animal {
         this.shelter = shelter;
     }
 
+    public Animal() {
+
+    }
+
     public Shelter getShelter() {
         return shelter;
     }
@@ -46,7 +50,7 @@ public class Animal {
         return nameAnimal;
     }
 
-    public void setName(String name) {
+    public void setName(String nameAnimal) {
         this.nameAnimal = nameAnimal;
     }
 

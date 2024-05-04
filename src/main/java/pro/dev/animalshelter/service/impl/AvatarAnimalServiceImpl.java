@@ -40,7 +40,7 @@ public class AvatarAnimalServiceImpl implements AvatarAnimalService {
 
     private AvatarAnimal findAvatarByAnimalId(Long animalId) {
         return
-                avatarAnimalRepository.findByIdAnimal(Long animalId)//ошибка?
+                avatarAnimalRepository.findByIdAnimal(animalId)
                         .orElse(new AvatarAnimal());
     }
 
