@@ -1,7 +1,5 @@
 package pro.dev.animalshelter.constant;
 
-import java.time.format.DateTimeFormatter;
-
 public class Constants {
     // About shelter
     public static final String INFORMATION_ABOUT_SHELTERS_BUTTON = "INFORMATION_ABOUT_SHELTERS_BUTTON";
@@ -47,10 +45,22 @@ public class Constants {
             (например, +7-912-345-67-89 Иван) или команду \\start для возврата в основное меню:
             """;
 
+    // Adoption Report
+    public static final String MESSAGE_SEND_REPORT_HELP = """
+            Заполнение и отправка отчета состоит из 5-ти простых шагов:
+            1. Прислать фото питомца
+            2. Прислать информацию о рационе
+            3. Описать общее самочувствие питомца
+            4. Сообщить есть ли изменения в поведении питомца
+            5. Нажать кнопку \"Отправить отчет\" для отправки отчета
+            После выполнения всех шагов Вы автоматически будете перенаправлены в основное меню.
+            """;
+    public static final String REPORT_SEND_BUTTON = "SEND_REPORT_BUTTON";
+    public static final String MESSAGE_REPORT_PHOTO_INPUT = "Пришлите фото питомца";
+
     public static final String MESSAGE_RETURN = "Привет! Рад Вас снова видеть! Выберите команду:";
     public static final String MESSAGE_CHOOSE_SHELTERS = "Информацию о каком приюте Вы хотели бы получить?";
     public static final String MESSAGE_INFORMATION_ABOUT_SHELTER = "Здесь вы можете получить следующую информацию:";
     public static final String MESSAGE_INFORMATION_ABOUT_PETS = "Здесь я помогу вам разобраться с бюрократическими и бытовыми вопросами. Что вас интересует?";
-    public static final String MESSAGE_SEND_REPORT = "Сюда можно будет прислать отчет о питомце";
     public static final String MESSAGE_VOLUNTEER = "Здесь можно будет позвать волонтера";
 }

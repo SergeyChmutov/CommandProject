@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import pro.dev.animalshelter.interfaces.ShelterService;
 import pro.dev.animalshelter.listener.TelegramBotUpdatesListener;
+import pro.dev.animalshelter.model.AdoptionReport;
 import pro.dev.animalshelter.model.Shelter;
 
 import java.util.ArrayList;
@@ -177,6 +178,16 @@ public class InlineKeyboardMarkupCreator {
 
         InlineKeyboardMarkup markupHomeRecommendation = getInlineKeyboardMarkup(keyboardHomeRecommendation);
         return markupHomeRecommendation;
+    }
+
+    public InlineKeyboardMarkup createKeyboardDoneReport() {
+        List<List<InlineKeyboardButton>> keyboardDoneReport = Arrays.asList(
+                Collections.singletonList(new InlineKeyboardButton("Отправить отчет")
+                        .callbackData(REPORT_SEND_BUTTON))
+        );
+
+        InlineKeyboardMarkup keyboardMarkup = getInlineKeyboardMarkup(keyboardDoneReport);
+        return keyboardMarkup;
     }
 
     private InlineKeyboardMarkup getInlineKeyboardMarkup(List<List<InlineKeyboardButton>> keyboardStart) {
