@@ -1,7 +1,10 @@
 package pro.dev.animalshelter.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -15,6 +18,10 @@ public class Animal {
     @ManyToOne
     @JoinColumn(name = "shelter_id")
     private Shelter shelter;
+
+    @OneToMany(mappedBy = "animal")
+//    @JsonManagedReference
+    private List<Adoption> adoptions = new ArrayList<>();
 
     public Animal(Long idAnimal, String nameAnimal, int ageAnimal) {
     }

@@ -1,7 +1,10 @@
 package pro.dev.animalshelter.conroller;
 
 import org.springframework.web.bind.annotation.*;
+import pro.dev.animalshelter.dto.AdoptionDTO;
+import pro.dev.animalshelter.enums.RequestStatus;
 import pro.dev.animalshelter.interfaces.AdoptionService;
+import pro.dev.animalshelter.mapper.AdoptionMapper;
 import pro.dev.animalshelter.model.*;
 
 import java.util.List;
@@ -11,16 +14,18 @@ import java.util.List;
 public class AdoptionController {
     private final AdoptionService adoptionService;
 
-    public AdoptionController(AdoptionService adoptionService) {
+    private final AdoptionMapper adoptionMapper;
+    public AdoptionController(AdoptionService adoptionService, AdoptionMapper adoptionMapper) {
         this.adoptionService = adoptionService;
+        this.adoptionMapper = adoptionMapper;
     }
 
     @PostMapping
-    public Adoption addAdoption(@RequestParam(name = "animalId") Long animalId,
-                                @RequestParam(name = "userId") Long userId,
-                                @RequestParam(name = "shelterId") Long shelterId) {
+    public AdoptionDTO addAdoption(@RequestParam(name = "animalId") Long animalId,
+                                   @RequestParam(name = "userId") Long userId,
+                                   @RequestParam(name = "shelterId") Long shelterId) {
 
-        return adoptionService.addAdoption(animalId, userId, shelterId);
+        return adoptionMapper.mapToDTO(adoptionService.addAdoption(animalId, userId, shelterId));
     }
     @GetMapping("/{id}")
     public Adoption getAdoptions(Long id) {
@@ -36,10 +41,16 @@ public class AdoptionController {
         adoptionService.deleteAdoption(id);
     }
 
-    @PutMapping("/{id}")
-    public Adoption prolongTrialPeriod(@RequestParam(name = "adoptionId") Long adoptionId,
+    @PutMapping("/{id}/trialPeriod")
+    public Adoption changeTrialPeriod(@RequestParam(name = "adoptionId") Long adoptionId,
                                        @RequestParam(name = "daysToAdd") int daysToAdd) {
-        return adoptionService.prolongTrialPeriod(adoptionId, daysToAdd);
+        return adoptionService.changeTrialPeriod(adoptionId, daysToAdd);
+    }
+
+    @PutMapping("/{id}/requestStatus")
+    public Adoption changeRequestStatus(@RequestParam(name = "adoptionId") Long adoptionId,
+                                        @RequestParam(name = "daysToAdd")RequestStatus status) {
+        return adoptionService.changeRequestStatus(adoptionId, status);
     }
 
 }
