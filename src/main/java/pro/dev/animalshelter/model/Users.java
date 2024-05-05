@@ -9,11 +9,11 @@ public class Users {
     @Id
     Long id;
     String name;
+    @Column(length = 16)
     String phone;
     @ManyToOne
     @JoinColumn(name = "shelter_id")
     Shelter shelter;
-
 
     public Users() {
     }

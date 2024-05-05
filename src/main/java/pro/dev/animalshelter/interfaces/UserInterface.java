@@ -7,8 +7,12 @@ import pro.dev.animalshelter.model.Users;
 import java.util.List;
 
 public interface UserInterface {
-    Users addVolunteerUser(Long id,Long idShelter);
-    Users addUser(Long id,String name,String phone,Shelter shelter);
+    Users addVolunteerUser(Long id, Long idShelter);
+
+    Users addUser(Long id, String name, String phone, Shelter shelter);
+
+    Users updateUser(Users user);
+
     List<Users> allUser();
 
     String removeUser(Long id);

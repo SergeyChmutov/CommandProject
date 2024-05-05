@@ -1,11 +1,11 @@
 package pro.dev.animalshelter.service;
 
+import org.springframework.stereotype.Service;
 import pro.dev.animalshelter.interfaces.UserInterface;
 import pro.dev.animalshelter.model.Shelter;
 import pro.dev.animalshelter.model.Users;
 import pro.dev.animalshelter.repository.ShelterRepository;
 import pro.dev.animalshelter.repository.UserRepository;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -20,11 +20,10 @@ public class UserService implements UserInterface {
     }
 
     @Override
-    public Users addVolunteerUser(Long id,Long idShelter) {
-        if (idShelter ==0){
+    public Users addVolunteerUser(Long id, Long idShelter) {
+        if (idShelter == 0) {
             userRepository.findById(id).get().setShelter(null);
-        }
-        else {
+        } else {
             userRepository.findById(id).get().setShelter(shelterRepository.findById(idShelter).get());
         }
         userRepository.save(userRepository.findById(id).get());
@@ -33,9 +32,14 @@ public class UserService implements UserInterface {
 
     @Override
     public Users addUser(Long id, String name, String phone, Shelter shelter) {
-        Users users = new Users(id,name,phone,shelter);
+        Users users = new Users(id, name, phone, shelter);
         userRepository.save(users);
         return users;
+    }
+
+    @Override
+    public Users updateUser(Users user) {
+        return userRepository.save(user);
     }
 
     @Override

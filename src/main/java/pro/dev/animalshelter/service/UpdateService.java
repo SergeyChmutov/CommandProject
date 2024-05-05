@@ -83,7 +83,7 @@ public class UpdateService {
         Long chatId = message.chat().id();
 
         if (!userService.existsById(chatId)) {
-            userService.addUser(chatId, update.message().chat().firstName(), null);
+            userService.addUser(chatId, update.message().chat().firstName(), null, null);
             InlineKeyboardMarkup markupChooseShelters = inlineKeyboardMarkupCreator.createKeyboardChooseShelters();
             telegramBotSender.send(chatId, MESSAGE_START, markupChooseShelters);
         } else {
@@ -366,11 +366,11 @@ public class UpdateService {
         final String phoneNumber = matcher.group(1);
         final String contactName = matcher.group(3);
 
-        // TODO: Решить как сохранять информацию о телефоне и имени для связи
         if (userService.existsById(chatId)) {
             Users user = userService.findById(chatId);
-        } else {
-            Users user = new Users();
+            user.setName(contactName);
+            user.setPhone(phoneNumber);
+            userService.updateUser(user);
         }
 
         telegramBotSender.send(chatId, "Информация для связи сохранена.");
