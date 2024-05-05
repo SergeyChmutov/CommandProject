@@ -25,10 +25,10 @@ public class UserServiceTest {
 
     @Test
     public void testAddUser() {
-        Users user = new Users(1L, "John", 123456789);
+        Users user = new Users(1L, "John", "123456789",null);
         Mockito.when(userRepository.save(user)).thenReturn(user);
 
-        Users savedUser = userService.addUser(1L, "John", 123456789);
+        Users savedUser = userService.addUser(1L, "John", "123456789",null);
 
         assertEquals(user, savedUser);
     }
@@ -36,7 +36,7 @@ public class UserServiceTest {
     @Test
     public void testAllUser() {
         List<Users> userList = new ArrayList<>();
-        userList.add(new Users(1L, "John", 123456789));
+        userList.add(new Users(1L, "John", "123456789",null));
         Mockito.when(userRepository.findAll()).thenReturn(userList);
 
         List<Users> retrievedUsers = userService.allUser();
@@ -65,7 +65,7 @@ public class UserServiceTest {
 
     @Test
     public void testFindById() {
-        Users user = new Users(1L, "John", 123456789);
+        Users user = new Users(1L, "John", "123456789",null);
         Mockito.when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
         Users retrievedUser = userService.findById(1L);

@@ -1,9 +1,6 @@
 package pro.dev.animalshelter.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 
 import java.util.Objects;
 
@@ -12,18 +9,20 @@ public class Users {
     @Id
     Long id;
     String name;
-    Integer phone;
+    String phone;
     @ManyToOne
     @JoinColumn(name = "shelter_id")
     Shelter shelter;
 
+
     public Users() {
     }
 
-    public Users(Long id, String name, Integer phone) {
+    public Users(Long id, String name, String phone, Shelter shelter) {
         this.id = id;
         this.name = name;
         this.phone = phone;
+        this.shelter = shelter;
     }
 
     public String getName() {
@@ -34,12 +33,20 @@ public class Users {
         this.name = name;
     }
 
-    public Integer getPhone() {
+    public String getPhone() {
         return phone;
     }
 
-    public void setPhone(Integer phone) {
+    public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public Shelter getShelter() {
+        return shelter;
+    }
+
+    public void setShelter(Shelter shelter) {
+        this.shelter = shelter;
     }
 
     public Long getId() {
@@ -68,7 +75,8 @@ public class Users {
         return "Users{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", phone=" + phone +
+                ", phone='" + phone + '\'' +
+                ", shelter=" + shelter +
                 '}';
     }
 }
