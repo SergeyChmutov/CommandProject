@@ -1,6 +1,5 @@
-package pro.dev.animalshelter.service;
+package pro.dev.animalshelter.interfaces;
 
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import pro.dev.animalshelter.model.AvatarAnimal;
 

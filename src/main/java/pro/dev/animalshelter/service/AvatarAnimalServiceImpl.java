@@ -1,4 +1,4 @@
-package pro.dev.animalshelter.service.impl;
+package pro.dev.animalshelter.service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
@@ -8,7 +8,7 @@ import pro.dev.animalshelter.model.AvatarAnimal;
 import pro.dev.animalshelter.model.Animal;
 import pro.dev.animalshelter.repository.AvatarAnimalRepository;
 import pro.dev.animalshelter.repository.AnimalRepository;
-import pro.dev.animalshelter.service.AvatarAnimalService;
+import pro.dev.animalshelter.interfaces.AvatarAnimalService;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -16,19 +16,15 @@ import java.nio.file.Path;
 import java.util.List;
 
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
-import static org.aspectj.weaver.tools.cache.SimpleCacheFactory.path;
 
 @Service
 public class AvatarAnimalServiceImpl implements AvatarAnimalService {
-
     private final AnimalRepository animalRepository;
-
     private final AvatarAnimalRepository avatarAnimalRepository;
-
     @Value("${path.to.avatars.folder}")
     private String avatarsDir;
-
     private final int BUFFER_SIZE = 1024;
+
     public AvatarAnimalServiceImpl(AnimalRepository animalRepository, AvatarAnimalRepository avatarAnimalRepository) {
         this.animalRepository = animalRepository;
         this.avatarAnimalRepository = avatarAnimalRepository;
@@ -40,7 +36,7 @@ public class AvatarAnimalServiceImpl implements AvatarAnimalService {
 
     private AvatarAnimal findAvatarByAnimalId(Long animalId) {
         return
-                avatarAnimalRepository.findByIdAnimal(animalId)
+                avatarAnimalRepository.findById(animalId)
                         .orElse(new AvatarAnimal());
     }
 
@@ -58,6 +54,7 @@ public class AvatarAnimalServiceImpl implements AvatarAnimalService {
         }
         return filePath;
     }
+
     private void saveToDd(Animal animal, MultipartFile avatarFile, Path filePath) throws IOException {
         AvatarAnimal avatarAnimal = findAvatarByAnimalId(animal.getIdAnimal());
         avatarAnimal.setAnimal(animal);
@@ -86,6 +83,5 @@ public class AvatarAnimalServiceImpl implements AvatarAnimalService {
     public List<AvatarAnimal> getPaginatedAvatarAnimals(int pageNumber, int pageSize) {
         PageRequest pageRequest = PageRequest.of(pageNumber - 1, pageSize);
         return avatarAnimalRepository.findAll(pageRequest).getContent();
-
     }
 }
