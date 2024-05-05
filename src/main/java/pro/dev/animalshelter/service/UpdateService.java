@@ -55,7 +55,7 @@ public class UpdateService {
 
             Long chatId = update.message().chat().id();
             if (!userService.existsById(chatId)) {
-                userService.addUser(chatId, update.message().chat().firstName(), null);
+                userService.addUser(chatId, update.message().chat().firstName(), null,null);
                 InlineKeyboardMarkup markupChooseShelters = inlineKeyboardMarkupCreator.createKeyboardChooseShelters();
                 telegramBotSender.send(chatId, MESSAGE_START, markupChooseShelters);
             } else {
