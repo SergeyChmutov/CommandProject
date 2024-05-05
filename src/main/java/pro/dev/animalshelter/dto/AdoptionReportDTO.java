@@ -120,6 +120,28 @@ public class AdoptionReportDTO {
 
     @Override
     public int hashCode() {
-        return Objects.hash(adoptionId, reportDate, shelterId, animalId, userId, ration, wellBeing, behaviourChange);
+        return Objects.hash(
+                adoptionId,
+                reportDate,
+                shelterId,
+                animalId,
+                userId,
+                ration,
+                wellBeing,
+                behaviourChange);
+    }
+
+    @Override
+    public String toString() {
+        return "AdoptionReportDTO{" +
+                "adoptionId=" + adoptionId +
+                ", reportDate=" + reportDate +
+                ", shelterId=" + shelterId +
+                ", animalId=" + animalId +
+                ", userId=" + userId +
+                ", ration='" + ration + '\'' +
+                ", wellBeing='" + wellBeing + '\'' +
+                ", behaviourChange='" + behaviourChange + '\'' +
+                '}';
     }
 }

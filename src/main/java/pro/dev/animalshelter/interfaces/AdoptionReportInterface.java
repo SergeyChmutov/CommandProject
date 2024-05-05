@@ -23,6 +23,8 @@ public interface AdoptionReportInterface {
             String behaviourChange
     );
 
+    AdoptionReport updateAdoptionReport(AdoptionReport report);
+
     AdoptionReport deleteAdoptionReport(Long adoptionId, LocalDate reportDate);
 
     Optional<AdoptionReport> getAdoptionReport(Long adoptionId, LocalDate reportDate);

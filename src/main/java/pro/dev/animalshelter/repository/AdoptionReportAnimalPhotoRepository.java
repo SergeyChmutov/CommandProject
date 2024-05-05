@@ -1,5 +1,6 @@
 package pro.dev.animalshelter.repository;
 
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import pro.dev.animalshelter.model.AdoptionReport;
@@ -9,6 +10,7 @@ import pro.dev.animalshelter.model.AdoptionReportPK;
 import java.util.Optional;
 
 @Repository
+@Transactional
 public interface AdoptionReportAnimalPhotoRepository extends JpaRepository<AdoptionReportAnimalPhoto, Long> {
     Optional<AdoptionReportAnimalPhoto> findByReport(AdoptionReport report);
 

@@ -1,5 +1,7 @@
 package pro.dev.animalshelter.constant;
 
+import java.time.format.DateTimeFormatter;
+
 public class Constants {
     // About shelter
     public static final String INFORMATION_ABOUT_SHELTERS_BUTTON = "INFORMATION_ABOUT_SHELTERS_BUTTON";
@@ -37,7 +39,7 @@ public class Constants {
 
     public static final String MESSAGE_SORRY = """
             Извините, я ограничен в возможностях общения! Для общения со мной используйте меню.
-            Если в меню нет информации, которая Вас интересует, используйте пункт меню \"Позвать волонтера\"
+            Если в меню нет информации, которая Вас интересует, используйте пункт меню "Позвать волонтера"
             """;
 
     public static final String MESSAGE_CONTACT_INFORMATION_HELP = """
@@ -52,15 +54,22 @@ public class Constants {
             2. Прислать информацию о рационе
             3. Описать общее самочувствие питомца
             4. Сообщить есть ли изменения в поведении питомца
-            5. Нажать кнопку \"Отправить отчет\" для отправки отчета
             После выполнения всех шагов Вы автоматически будете перенаправлены в основное меню.
             """;
     public static final String REPORT_SEND_BUTTON = "SEND_REPORT_BUTTON";
     public static final String MESSAGE_REPORT_PHOTO_INPUT = "Пришлите фото питомца";
+    public static final String MESSAGE_REPORT_RATION_INPUT = "Опишите рацион животного";
+    public static final String MESSAGE_WELL_BEING_INPUT = "Опишите общее самочувствие животного и как он привыкает к новому месту";
+    public static final String MESSAGE_BEHAVIOR_INPUT = "Есть ли изменение в поведении животного: отказ от старых привычек, приобретение новых?";
+    public static final String MESSAGE_REPORT_DONE = "Спасибо за предоставленную информацию. Отчет отправлен.";
 
     public static final String MESSAGE_RETURN = "Привет! Рад Вас снова видеть! Выберите команду:";
     public static final String MESSAGE_CHOOSE_SHELTERS = "Информацию о каком приюте Вы хотели бы получить?";
     public static final String MESSAGE_INFORMATION_ABOUT_SHELTER = "Здесь вы можете получить следующую информацию:";
     public static final String MESSAGE_INFORMATION_ABOUT_PETS = "Здесь я помогу вам разобраться с бюрократическими и бытовыми вопросами. Что вас интересует?";
     public static final String MESSAGE_VOLUNTEER = "Здесь можно будет позвать волонтера";
+
+    // LocalDate converted
+    public static final String FORMAT_REPORT_DATE = "dd-MM-yyyy";
+    public static final DateTimeFormatter REPORT_DATE_FORMATTER = DateTimeFormatter.ofPattern(FORMAT_REPORT_DATE);
 }

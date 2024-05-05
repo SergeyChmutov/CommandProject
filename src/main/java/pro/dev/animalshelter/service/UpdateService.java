@@ -1,22 +1,20 @@
 package pro.dev.animalshelter.service;
 
-import com.pengrad.telegrambot.model.*;
+import com.pengrad.telegrambot.model.CallbackQuery;
+import com.pengrad.telegrambot.model.Message;
+import com.pengrad.telegrambot.model.PhotoSize;
+import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import org.springframework.stereotype.Service;
 import pro.dev.animalshelter.enums.RecommendationType;
 import pro.dev.animalshelter.enums.ShelterInformationProperty;
 import pro.dev.animalshelter.enums.UserMessageStatus;
 import pro.dev.animalshelter.exception.*;
-import pro.dev.animalshelter.interfaces.RecommendationInformationInterface;
-import pro.dev.animalshelter.interfaces.ShelterInformationInterface;
-import pro.dev.animalshelter.interfaces.ShelterService;
-import pro.dev.animalshelter.interfaces.TravelDirectionsInterface;
+import pro.dev.animalshelter.interfaces.*;
 import pro.dev.animalshelter.model.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +33,8 @@ public class UpdateService {
     private final TravelDirectionsInterface travelDirectionsService;
     private final InlineKeyboardMarkupCreator inlineKeyboardMarkupCreator;
     private final RecommendationInformationInterface recommendationService;
+    private final AdoptionReportAnimalPhotoInterface reportAnimalPhotoService;
+    private final AdoptionReportInterface reportService;
     private final Map<Long, Long> userCurrentShelterId = new HashMap<>();
     private final Map<Long, UserMessageStatus> userCurrentMessageStatus = new HashMap<>();
     private final Map<Long, AdoptionReport> userCurrentAdoptionReport = new HashMap<>();
@@ -45,7 +45,9 @@ public class UpdateService {
             UserService userService, ShelterService shelterService,
             ShelterInformationService informationService,
             TravelDirectionsInterface travelDirectionsService,
-            RecommendationInformationInterface recommendationService
+            RecommendationInformationInterface recommendationService,
+            AdoptionReportAnimalPhotoInterface reportAnimalPhotoService,
+            AdoptionReportInterface reportService
     ) {
         this.telegramBotSender = telegramBotSender;
         this.inlineKeyboardMarkupCreator = inlineKeyboardMarkupCreator;
@@ -54,6 +56,8 @@ public class UpdateService {
         this.informationService = informationService;
         this.travelDirectionsService = travelDirectionsService;
         this.recommendationService = recommendationService;
+        this.reportAnimalPhotoService = reportAnimalPhotoService;
+        this.reportService = reportService;
     }
 
     public void processUpdate(Update update) {
@@ -378,22 +382,43 @@ public class UpdateService {
 
     private void processAdoptionReportUpdate(Update update, UserMessageStatus status) {
         final Message message = update.message();
+        final String messageText = message.text();
         final Long chatId = message.chat().id();
 
         switch (status) {
             case REPORT_PHOTO_INPUT:
+                if (message.photo() == null) {
+                    telegramBotSender.send(chatId, MESSAGE_SORRY);
+                }
                 List<PhotoSize> photos = List.of(message.photo());
                 if (message.photo() != null) {
                     PhotoSize photo = photos.stream()
                             .sorted(Comparator.comparing(PhotoSize::fileSize).reversed())
                             .findFirst()
                             .orElse(null);
-                    File file = telegramBotSender.getFileBy(photo.fileId());
+                    byte[] photoData = telegramBotSender.getPhotoData(photo.fileId());
+                    reportAnimalPhotoService.saveAnimalPhoto(
+                            userCurrentAdoptionReport.get(chatId).getPk(),
+                            photoData,
+                            photo.fileSize()
+                    );
                 }
                 break;
             case REPORT_RATION_INPUT:
+                if (messageText != null) {
+                    userCurrentAdoptionReport.get(chatId).setRation(messageText);
+                    reportService.updateAdoptionReport(userCurrentAdoptionReport.get(chatId));
+                }
             case REPORT_WELL_BEING_INPUT:
+                if (messageText != null) {
+                    userCurrentAdoptionReport.get(chatId).setWellBeing(messageText);
+                    reportService.updateAdoptionReport(userCurrentAdoptionReport.get(chatId));
+                }
             case REPORT_BEHAVIOR_INPUT:
+                if (messageText != null) {
+                    userCurrentAdoptionReport.get(chatId).setBehaviourChange(messageText);
+                    reportService.updateAdoptionReport(userCurrentAdoptionReport.get(chatId));
+                }
         }
 
         sendNextAdoptionReportMessage(chatId);
@@ -417,9 +442,6 @@ public class UpdateService {
             AdoptionReport report = new AdoptionReport(new AdoptionReportPK(adoption, currentDate));
 
             userCurrentAdoptionReport.put(chatId, report);
-        } else {
-            // Весь отчет заполнен?
-
         }
 
         userCurrentMessageStatus.put(chatId, UserMessageStatus.SEND_REPORT);
@@ -440,10 +462,22 @@ public class UpdateService {
                 userCurrentMessageStatus.put(chatId, UserMessageStatus.REPORT_PHOTO_INPUT);
                 break;
             case REPORT_PHOTO_INPUT:
+                telegramBotSender.send(chatId, MESSAGE_REPORT_RATION_INPUT);
+                userCurrentMessageStatus.put(chatId, UserMessageStatus.REPORT_RATION_INPUT);
+                break;
             case REPORT_RATION_INPUT:
+                telegramBotSender.send(chatId, MESSAGE_WELL_BEING_INPUT);
+                userCurrentMessageStatus.put(chatId, UserMessageStatus.REPORT_WELL_BEING_INPUT);
+                break;
             case REPORT_WELL_BEING_INPUT:
+                telegramBotSender.send(chatId, MESSAGE_BEHAVIOR_INPUT);
+                userCurrentMessageStatus.put(chatId, UserMessageStatus.REPORT_BEHAVIOR_INPUT);
+                break;
             case REPORT_BEHAVIOR_INPUT:
-
+                telegramBotSender.send(chatId, MESSAGE_REPORT_DONE);
+                userCurrentMessageStatus.remove(chatId);
+                showMainMenu(chatId);
+                break;
         }
     }
 }

@@ -5,13 +5,14 @@ import com.pengrad.telegrambot.model.File;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.request.*;
 import com.pengrad.telegrambot.response.BaseResponse;
-import com.pengrad.telegrambot.response.GetFileResponse;
 import com.pengrad.telegrambot.response.SendResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import pro.dev.animalshelter.listener.TelegramBotUpdatesListener;
 import pro.dev.animalshelter.repository.ShelterRepository;
+
+import java.io.IOException;
 
 @Service
 public class TelegramBotSender {
@@ -54,11 +55,13 @@ public class TelegramBotSender {
         }
     }
 
-    public File getFileBy(String fileId) {
-        GetFile request = new GetFile(fileId);
-        GetFileResponse getFileResponse = telegramBot.execute(request);
-
-        return getFileResponse.file();
+    public byte[] getPhotoData(String fileId) {
+        try {
+            File file = telegramBot.execute(new GetFile(fileId)).file();
+            return telegramBot.getFileContent(file);
+        } catch (IOException e) {
+            return new byte[0];
+        }
     }
 
     private void sendMessage(String message, SendMessage sendMessage) {
@@ -72,7 +75,7 @@ public class TelegramBotSender {
     }
 
     private void sendPhotoMessage(Long chatId, SendPhoto photoMessage) {
-        SendResponse response = (SendResponse) telegramBot.execute(photoMessage);
+        SendResponse response = telegramBot.execute(photoMessage);
         loggingTelegramBotSendMessage("Фото", response);
     }
 

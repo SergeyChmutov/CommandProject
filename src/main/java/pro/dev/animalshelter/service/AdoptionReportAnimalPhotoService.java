@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import pro.dev.animalshelter.exception.AdoptionReportAnimalPhotoNotFound;
+import pro.dev.animalshelter.exception.AdoptionReportWrongReportDateException;
 import pro.dev.animalshelter.interfaces.AdoptionReportAnimalPhotoInterface;
 import pro.dev.animalshelter.interfaces.AdoptionReportInterface;
 import pro.dev.animalshelter.model.Adoption;
@@ -17,7 +18,10 @@ import pro.dev.animalshelter.repository.AdoptionReportAnimalPhotoRepository;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.Optional;
+
+import static pro.dev.animalshelter.constant.Constants.REPORT_DATE_FORMATTER;
 
 @Service
 public class AdoptionReportAnimalPhotoService implements AdoptionReportAnimalPhotoInterface {
@@ -79,7 +83,34 @@ public class AdoptionReportAnimalPhotoService implements AdoptionReportAnimalPho
         return animalPhoto.getData();
     }
 
-    private AdoptionReportAnimalPhoto findAdoptionReportAnimalPhotoOrCreateWhenNotFound(Long adoptionId, LocalDate reportDate) {
+    @Override
+    public AdoptionReportAnimalPhoto saveAnimalPhoto(AdoptionReportPK pk, byte[] photoData, Long fileSize) {
+        AdoptionReportAnimalPhoto savedPhotoReport = findAdoptionReportAnimalPhotoOrCreateWhenNotFound(
+                pk.getAdoption().getId(),
+                pk.getReportDate());
+        savedPhotoReport.setFileSize(fileSize);
+        savedPhotoReport.setMediaType(MediaType.IMAGE_JPEG_VALUE);
+        savedPhotoReport.setData(photoData);
+        repository.save(savedPhotoReport);
+        return savedPhotoReport;
+    }
+
+    @Override
+    public ResponseEntity<byte[]> downloadAnimalPhotoReportFromDb(Long adoptionId, String reportDateText) {
+        LocalDate reportDate;
+        try {
+            reportDate = LocalDate.parse(reportDateText, REPORT_DATE_FORMATTER);
+        } catch (DateTimeParseException e) {
+            throw new AdoptionReportWrongReportDateException("Ошибка в указании даты отчета: " + reportDateText);
+        }
+
+        return downloadAnimalPhotoFromDb(adoptionId, reportDate);
+    }
+
+    private AdoptionReportAnimalPhoto findAdoptionReportAnimalPhotoOrCreateWhenNotFound(
+            Long adoptionId,
+            LocalDate reportDate
+    ) {
         Optional<AdoptionReport> report = adoptionReport.getAdoptionReport(adoptionId, reportDate);
 
         if (report.isPresent()) {

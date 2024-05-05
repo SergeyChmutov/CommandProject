@@ -61,6 +61,12 @@ public class AdoptionReportService implements AdoptionReportInterface {
     }
 
     @Override
+    public AdoptionReport updateAdoptionReport(AdoptionReport report) {
+        repository.save(report);
+        return report;
+    }
+
+    @Override
     public AdoptionReport deleteAdoptionReport(Long adoptionId, LocalDate reportDate) {
         Optional<AdoptionReport> savedReport = repository.findByPk_Adoption_IdAndPk_ReportDate(adoptionId, reportDate);
 
