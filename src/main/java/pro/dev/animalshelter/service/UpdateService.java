@@ -2,21 +2,25 @@ package pro.dev.animalshelter.service;
 
 import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Message;
+import com.pengrad.telegrambot.model.PhotoSize;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import org.springframework.stereotype.Service;
 import pro.dev.animalshelter.enums.RecommendationType;
 import pro.dev.animalshelter.enums.ShelterInformationProperty;
+import pro.dev.animalshelter.enums.UserMessageStatus;
 import pro.dev.animalshelter.exception.*;
-import pro.dev.animalshelter.interfaces.RecommendationInformationInterface;
-import pro.dev.animalshelter.interfaces.ShelterInformationInterface;
-import pro.dev.animalshelter.interfaces.ShelterService;
-import pro.dev.animalshelter.interfaces.TravelDirectionsInterface;
-import pro.dev.animalshelter.model.Shelter;
-import pro.dev.animalshelter.model.ShelterInformation;
+import pro.dev.animalshelter.interfaces.*;
+import pro.dev.animalshelter.model.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static pro.dev.animalshelter.constant.Constants.*;
 
@@ -29,7 +33,11 @@ public class UpdateService {
     private final TravelDirectionsInterface travelDirectionsService;
     private final InlineKeyboardMarkupCreator inlineKeyboardMarkupCreator;
     private final RecommendationInformationInterface recommendationService;
+    private final AdoptionReportAnimalPhotoInterface reportAnimalPhotoService;
+    private final AdoptionReportInterface reportService;
     private final Map<Long, Long> userCurrentShelterId = new HashMap<>();
+    private final Map<Long, UserMessageStatus> userCurrentMessageStatus = new HashMap<>();
+    private final Map<Long, AdoptionReport> userCurrentAdoptionReport = new HashMap<>();
 
     public UpdateService(
             TelegramBotSender telegramBotSender,
@@ -37,7 +45,9 @@ public class UpdateService {
             UserService userService, ShelterService shelterService,
             ShelterInformationService informationService,
             TravelDirectionsInterface travelDirectionsService,
-            RecommendationInformationInterface recommendationService
+            RecommendationInformationInterface recommendationService,
+            AdoptionReportAnimalPhotoInterface reportAnimalPhotoService,
+            AdoptionReportInterface reportService
     ) {
         this.telegramBotSender = telegramBotSender;
         this.inlineKeyboardMarkupCreator = inlineKeyboardMarkupCreator;
@@ -46,21 +56,19 @@ public class UpdateService {
         this.informationService = informationService;
         this.travelDirectionsService = travelDirectionsService;
         this.recommendationService = recommendationService;
+        this.reportAnimalPhotoService = reportAnimalPhotoService;
+        this.reportService = reportService;
     }
 
     public void processUpdate(Update update) {
         Message message = update.message();
 
-        if (message != null && message.text() != null && message.text().equals("/start")) {
+        if (message != null) {
 
-            Long chatId = update.message().chat().id();
-            if (!userService.existsById(chatId)) {
-                userService.addUser(chatId, update.message().chat().firstName(), null,null);
-                InlineKeyboardMarkup markupChooseShelters = inlineKeyboardMarkupCreator.createKeyboardChooseShelters();
-                telegramBotSender.send(chatId, MESSAGE_START, markupChooseShelters);
+            if (message.text() != null && message.text().equals("/start")) {
+                processStartCommand(update);
             } else {
-                InlineKeyboardMarkup markupStart = inlineKeyboardMarkupCreator.createKeyboardStart();
-                telegramBotSender.send(chatId, MESSAGE_RETURN, markupStart);
+                processUserUpdate(update);
             }
 
         } else if (update.callbackQuery() != null) {
@@ -68,6 +76,22 @@ public class UpdateService {
             chooseCommand(update);
 
         }
+    }
+
+    private void processStartCommand(Update update) {
+        Message message = update.message();
+        Long chatId = message.chat().id();
+
+        if (!userService.existsById(chatId)) {
+            userService.addUser(chatId, update.message().chat().firstName(), null);
+            InlineKeyboardMarkup markupChooseShelters = inlineKeyboardMarkupCreator.createKeyboardChooseShelters();
+            telegramBotSender.send(chatId, MESSAGE_START, markupChooseShelters);
+        } else {
+            InlineKeyboardMarkup markupStart = inlineKeyboardMarkupCreator.createKeyboardStart();
+            telegramBotSender.send(chatId, MESSAGE_RETURN, markupStart);
+        }
+
+        userCurrentMessageStatus.remove(chatId);
     }
 
     private void chooseCommand(Update update) {
@@ -92,7 +116,7 @@ public class UpdateService {
                 break;
 
             case SEND_REPORT_BUTTON:
-                telegramBotSender.send(chatId, MESSAGE_SEND_REPORT);
+                updateAdoptionReportCommand(update);
                 break;
 
             case VOLUNTEER_BUTTON:
@@ -125,11 +149,11 @@ public class UpdateService {
                 break;
 
             case CONTACTS_BUTTON:
-                telegramBotSender.send(chatId, "Здесь можно будет оставить контактные данные для связи");
+                getUserContactsInformation(update);
                 break;
 
             case MAIN_MENU_BUTTON:
-                showMainMenu(chatId, messageId);
+                returnToMainMenu(chatId, messageId);
                 break;
 
             default:
@@ -211,12 +235,12 @@ public class UpdateService {
         final Integer messageId = callbackQuery.maybeInaccessibleMessage().messageId();
         InlineKeyboardMarkup markup = callbackQuery.message().replyMarkup();
 
-        final Long shelterId = userCurrentShelterId.get(chatId);
-
-        if (shelterId == null) {
+        if (!userCurrentShelterId.containsKey(chatId)) {
             chooseShelters(chatId, messageId);
             return;
         }
+
+        final Long shelterId = userCurrentShelterId.get(chatId);
 
         String data = callbackQuery.data();
 
@@ -284,8 +308,176 @@ public class UpdateService {
         }
     }
 
-    private void showMainMenu(Long chatId, Integer messageId) {
+    private void returnToMainMenu(Long chatId, Integer messageId) {
         InlineKeyboardMarkup markupStart = inlineKeyboardMarkupCreator.createKeyboardStart();
         telegramBotSender.editMessageText(chatId, messageId, MESSAGE_RETURN, markupStart);
+    }
+
+    private void showMainMenu(Long chatId) {
+        InlineKeyboardMarkup markupStart = inlineKeyboardMarkupCreator.createKeyboardStart();
+        telegramBotSender.send(chatId, MESSAGE_RETURN, markupStart);
+    }
+
+    private void getUserContactsInformation(Update update) {
+        final CallbackQuery callbackQuery = update.callbackQuery();
+        final Long chatId = callbackQuery.maybeInaccessibleMessage().chat().id();
+        final Integer messageId = callbackQuery.maybeInaccessibleMessage().messageId();
+
+        telegramBotSender.deleteMessage(chatId, messageId);
+        telegramBotSender.send(chatId, MESSAGE_CONTACT_INFORMATION_HELP);
+
+        userCurrentMessageStatus.put(chatId, UserMessageStatus.CONTACT_INFORMATION_INPUT);
+    }
+
+    private void processUserUpdate(Update update) {
+        final Message message = update.message();
+        final Long chatId = message.chat().id();
+
+        if (!userCurrentMessageStatus.containsKey(chatId)) {
+            telegramBotSender.send(chatId, MESSAGE_SORRY);
+            return;
+        }
+
+        UserMessageStatus userMessageStatus = userCurrentMessageStatus.get(chatId);
+
+        switch (userMessageStatus) {
+            case SEND_REPORT:
+            case REPORT_PHOTO_INPUT:
+            case REPORT_RATION_INPUT:
+            case REPORT_WELL_BEING_INPUT:
+            case REPORT_BEHAVIOR_INPUT:
+                processAdoptionReportUpdate(update, userMessageStatus);
+                break;
+            case CONTACT_INFORMATION_INPUT:
+                parseUserContactsInformation(chatId, message.text());
+        }
+    }
+
+    private void parseUserContactsInformation(Long chatId, String messageText) {
+        Pattern notificationPattern = Pattern.compile("(\\+7-9\\d{2}-\\d{3}-\\d{2}-\\d{2})(\\s+)(\\S+)");
+        Matcher matcher = notificationPattern.matcher(messageText);
+
+        if (!matcher.matches()) {
+            telegramBotSender.send(chatId, "Сообщение не соответствует шаблону.");
+            telegramBotSender.send(chatId, MESSAGE_CONTACT_INFORMATION_HELP);
+            return;
+        }
+
+        final String phoneNumber = matcher.group(1);
+        final String contactName = matcher.group(3);
+
+        // TODO: Решить как сохранять информацию о телефоне и имени для связи
+        if (userService.existsById(chatId)) {
+            Users user = userService.findById(chatId);
+        } else {
+            Users user = new Users();
+        }
+
+        telegramBotSender.send(chatId, "Информация для связи сохранена.");
+
+        userCurrentMessageStatus.remove(chatId);
+
+        showMainMenu(chatId);
+    }
+
+    private void processAdoptionReportUpdate(Update update, UserMessageStatus status) {
+        final Message message = update.message();
+        final String messageText = message.text();
+        final Long chatId = message.chat().id();
+
+        switch (status) {
+            case REPORT_PHOTO_INPUT:
+                if (message.photo() == null) {
+                    telegramBotSender.send(chatId, MESSAGE_SORRY);
+                }
+                List<PhotoSize> photos = List.of(message.photo());
+                if (message.photo() != null) {
+                    PhotoSize photo = photos.stream()
+                            .sorted(Comparator.comparing(PhotoSize::fileSize).reversed())
+                            .findFirst()
+                            .orElse(null);
+                    byte[] photoData = telegramBotSender.getPhotoData(photo.fileId());
+                    reportAnimalPhotoService.saveAnimalPhoto(
+                            userCurrentAdoptionReport.get(chatId).getPk(),
+                            photoData,
+                            photo.fileSize()
+                    );
+                }
+                break;
+            case REPORT_RATION_INPUT:
+                if (messageText != null) {
+                    userCurrentAdoptionReport.get(chatId).setRation(messageText);
+                    reportService.updateAdoptionReport(userCurrentAdoptionReport.get(chatId));
+                }
+            case REPORT_WELL_BEING_INPUT:
+                if (messageText != null) {
+                    userCurrentAdoptionReport.get(chatId).setWellBeing(messageText);
+                    reportService.updateAdoptionReport(userCurrentAdoptionReport.get(chatId));
+                }
+            case REPORT_BEHAVIOR_INPUT:
+                if (messageText != null) {
+                    userCurrentAdoptionReport.get(chatId).setBehaviourChange(messageText);
+                    reportService.updateAdoptionReport(userCurrentAdoptionReport.get(chatId));
+                }
+        }
+
+        sendNextAdoptionReportMessage(chatId);
+    }
+
+    private void updateAdoptionReportCommand(Update update) {
+        final CallbackQuery callbackQuery = update.callbackQuery();
+        final Long chatId = callbackQuery.maybeInaccessibleMessage().chat().id();
+        final Integer messageId = callbackQuery.maybeInaccessibleMessage().messageId();
+        final LocalDate currentDate = LocalDate.from(LocalDateTime.now());
+
+        // TODO: Нужно сегодня отправлять отчет пользователю?
+
+        telegramBotSender.deleteMessage(chatId, messageId);
+        telegramBotSender.send(chatId, MESSAGE_SEND_REPORT_HELP);
+
+        if (!userCurrentAdoptionReport.containsKey(chatId)) {
+            Adoption adoption = new Adoption();
+            adoption.setId(1L);
+
+            AdoptionReport report = new AdoptionReport(new AdoptionReportPK(adoption, currentDate));
+
+            userCurrentAdoptionReport.put(chatId, report);
+        }
+
+        userCurrentMessageStatus.put(chatId, UserMessageStatus.SEND_REPORT);
+
+        sendNextAdoptionReportMessage(chatId);
+    }
+
+    private void sendNextAdoptionReportMessage(Long chatId) {
+        if (!userCurrentMessageStatus.containsKey(chatId)) {
+            return;
+        }
+
+        UserMessageStatus status = userCurrentMessageStatus.get(chatId);
+
+        switch (status) {
+            case SEND_REPORT:
+                telegramBotSender.send(chatId, MESSAGE_REPORT_PHOTO_INPUT);
+                userCurrentMessageStatus.put(chatId, UserMessageStatus.REPORT_PHOTO_INPUT);
+                break;
+            case REPORT_PHOTO_INPUT:
+                telegramBotSender.send(chatId, MESSAGE_REPORT_RATION_INPUT);
+                userCurrentMessageStatus.put(chatId, UserMessageStatus.REPORT_RATION_INPUT);
+                break;
+            case REPORT_RATION_INPUT:
+                telegramBotSender.send(chatId, MESSAGE_WELL_BEING_INPUT);
+                userCurrentMessageStatus.put(chatId, UserMessageStatus.REPORT_WELL_BEING_INPUT);
+                break;
+            case REPORT_WELL_BEING_INPUT:
+                telegramBotSender.send(chatId, MESSAGE_BEHAVIOR_INPUT);
+                userCurrentMessageStatus.put(chatId, UserMessageStatus.REPORT_BEHAVIOR_INPUT);
+                break;
+            case REPORT_BEHAVIOR_INPUT:
+                telegramBotSender.send(chatId, MESSAGE_REPORT_DONE);
+                userCurrentMessageStatus.remove(chatId);
+                showMainMenu(chatId);
+                break;
+        }
     }
 }

@@ -22,10 +22,12 @@ public class AdoptionController {
 
         return adoptionService.addAdoption(animalId, userId, shelterId);
     }
+
     @GetMapping("/{id}")
     public Adoption getAdoptions(Long id) {
         return adoptionService.getAdoption(id);
     }
+
     @GetMapping
     public List<Adoption> getAllAdoptions() {
         return adoptionService.getAdoption();
@@ -41,5 +43,4 @@ public class AdoptionController {
                                        @RequestParam(name = "daysToAdd") int daysToAdd) {
         return adoptionService.prolongTrialPeriod(adoptionId, daysToAdd);
     }
-
 }
