@@ -32,22 +32,35 @@ public class TelegramBotSender {
 
     public void send(Long chatId, String message) {
         SendMessage sendMessage = new SendMessage(chatId, message);
+
         sendMessage(message, sendMessage);
     }
 
     public void editMessageText(Long chatId, Integer messageId, String message, InlineKeyboardMarkup markup) {
         EditMessageText editMessage = new EditMessageText(chatId, messageId, message)
                 .replyMarkup(markup);
+
         sendEditedMessage(message, editMessage);
     }
 
-    public void sendPhoto(Long chatId, byte[] photo) {
-        SendPhoto photoMessage = new SendPhoto(chatId, photo);
+    public void sendPhoto(Long chatId, byte[] photo, String caption) {
+        SendPhoto photoMessage = new SendPhoto(chatId, photo)
+                .caption(caption);
+
+        sendPhotoMessage(chatId, photoMessage);
+    }
+
+    public void sendPhoto(Long chatId, byte[] photo, String caption, InlineKeyboardMarkup markup) {
+        SendPhoto photoMessage = new SendPhoto(chatId, photo)
+                .caption(caption)
+                .replyMarkup(markup);
+
         sendPhotoMessage(chatId, photoMessage);
     }
 
     public void deleteMessage(Long chatId, Integer messageId) {
         BaseResponse response = telegramBot.execute(new DeleteMessage(chatId, messageId));
+
         if (response.isOk()) {
             logger.info("Успешно удалено сообщение {} из чата {}", messageId, chatId);
         } else {

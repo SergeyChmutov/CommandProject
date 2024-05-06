@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import pro.dev.animalshelter.exception.AvatarAnimalDefaultImageNotFound;
 import pro.dev.animalshelter.model.AvatarAnimal;
 import pro.dev.animalshelter.model.Animal;
 import pro.dev.animalshelter.repository.AvatarAnimalRepository;
@@ -14,6 +15,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
@@ -83,5 +85,27 @@ public class AvatarAnimalServiceImpl implements AvatarAnimalService {
     public List<AvatarAnimal> getPaginatedAvatarAnimals(int pageNumber, int pageSize) {
         PageRequest pageRequest = PageRequest.of(pageNumber - 1, pageSize);
         return avatarAnimalRepository.findAll(pageRequest).getContent();
+    }
+
+    @Override
+    public AvatarAnimal findAvatarAnimalOrReturnDefaultAvailableImage(Animal animal) {
+        Optional<AvatarAnimal> findAvatar = avatarAnimalRepository.findById(animal.getIdAnimal());
+
+        if (findAvatar.isPresent()) {
+            return findAvatar.get();
+        } else {
+            return getAvatarAnimalWithDefaultNoImageFoundImage();
+        }
+    }
+
+    private AvatarAnimal getAvatarAnimalWithDefaultNoImageFoundImage() {
+        InputStream is = getClass().getClassLoader().getResourceAsStream("images/noImageFound.jpg");
+        AvatarAnimal avatar = new AvatarAnimal();
+        try {
+            avatar.setData(is.readAllBytes());
+        } catch (IOException e) {
+            throw new AvatarAnimalDefaultImageNotFound();
+        }
+        return avatar;
     }
 }

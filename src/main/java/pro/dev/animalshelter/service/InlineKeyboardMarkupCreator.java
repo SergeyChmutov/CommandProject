@@ -76,6 +76,8 @@ public class InlineKeyboardMarkupCreator {
 
     public InlineKeyboardMarkup createKeyboardInformationAboutShelter() {
         List<List<InlineKeyboardButton>> keyboardWetNose = Arrays.asList(
+                Collections.singletonList(new InlineKeyboardButton("Список животных для усыновления")
+                        .callbackData(CHOOSE_PET_BUTTON)),
                 Collections.singletonList(new InlineKeyboardButton("Расписание работы")
                         .callbackData(SCHEDULE_SHELTER_BUTTON)),
                 Arrays.asList(
@@ -104,8 +106,6 @@ public class InlineKeyboardMarkupCreator {
 
     public InlineKeyboardMarkup createKeyboardInformationAboutPets() {
         List<List<InlineKeyboardButton>> keyboardInformationAboutPets = Arrays.asList(
-                Collections.singletonList(new InlineKeyboardButton("Список животных для усыновления")
-                        .callbackData(CHOOSE_PET_BUTTON)),
                 Collections.singletonList(new InlineKeyboardButton("Правила знакомства с животным")
                         .callbackData(RULES_BUTTON)),
                 Collections.singletonList(new InlineKeyboardButton("Список документов")
@@ -180,10 +180,16 @@ public class InlineKeyboardMarkupCreator {
         return markupHomeRecommendation;
     }
 
-    public InlineKeyboardMarkup createKeyboardDoneReport() {
+    public InlineKeyboardMarkup createKeyboardShowSheltersAnimal() {
         List<List<InlineKeyboardButton>> keyboardDoneReport = Arrays.asList(
-                Collections.singletonList(new InlineKeyboardButton("Отправить отчет")
-                        .callbackData(REPORT_SEND_BUTTON))
+                Arrays.asList(new InlineKeyboardButton("<< Предыдущий")
+                        .callbackData(SHOW_ANIMAL_PREVIOUS_BUTTON),
+                        new InlineKeyboardButton("Следующий >>")
+                                .callbackData(SHOW_ANIMAL_NEXT_BUTTON)),
+                Collections.singletonList(new InlineKeyboardButton("Заявка на усыновление")
+                        .callbackData(SHOW_ANIMAL_CREATE_ADOPTION_BUTTON)),
+                Collections.singletonList(new InlineKeyboardButton("<< Вернуться")
+                        .callbackData(SHOW_ANIMAL_RETURN_BUTTON))
         );
 
         InlineKeyboardMarkup keyboardMarkup = getInlineKeyboardMarkup(keyboardDoneReport);

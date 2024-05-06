@@ -5,6 +5,7 @@ import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.PhotoSize;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import pro.dev.animalshelter.enums.RecommendationType;
 import pro.dev.animalshelter.enums.ShelterInformationProperty;
@@ -33,11 +34,16 @@ public class UpdateService {
     private final TravelDirectionsInterface travelDirectionsService;
     private final InlineKeyboardMarkupCreator inlineKeyboardMarkupCreator;
     private final RecommendationInformationInterface recommendationService;
+    private final AdoptionService adoptionService;
     private final AdoptionReportAnimalPhotoInterface reportAnimalPhotoService;
     private final AdoptionReportInterface reportService;
+    private final AnimalInterface animalService;
+    private final AvatarAnimalService avatarAnimalService;
     private final Map<Long, Long> userCurrentShelterId = new HashMap<>();
     private final Map<Long, UserMessageStatus> userCurrentMessageStatus = new HashMap<>();
     private final Map<Long, AdoptionReport> userCurrentAdoptionReport = new HashMap<>();
+    private final Map<Long, PageRequest> userCurrentShowAnimalPageRequest = new HashMap<>();
+    private final Map<Long, Animal> userCurrentShowAnimal = new HashMap<>();
 
     public UpdateService(
             TelegramBotSender telegramBotSender,
@@ -45,9 +51,11 @@ public class UpdateService {
             UserService userService, ShelterService shelterService,
             ShelterInformationService informationService,
             TravelDirectionsInterface travelDirectionsService,
-            RecommendationInformationInterface recommendationService,
+            RecommendationInformationInterface recommendationService, AdoptionService adoptionService,
             AdoptionReportAnimalPhotoInterface reportAnimalPhotoService,
-            AdoptionReportInterface reportService
+            AdoptionReportInterface reportService,
+            AnimalInterface animalService,
+            AvatarAnimalService avatarAnimalService
     ) {
         this.telegramBotSender = telegramBotSender;
         this.inlineKeyboardMarkupCreator = inlineKeyboardMarkupCreator;
@@ -56,8 +64,11 @@ public class UpdateService {
         this.informationService = informationService;
         this.travelDirectionsService = travelDirectionsService;
         this.recommendationService = recommendationService;
+        this.adoptionService = adoptionService;
         this.reportAnimalPhotoService = reportAnimalPhotoService;
         this.reportService = reportService;
+        this.animalService = animalService;
+        this.avatarAnimalService = avatarAnimalService;
     }
 
     public void processUpdate(Update update) {
@@ -92,6 +103,8 @@ public class UpdateService {
         }
 
         userCurrentMessageStatus.remove(chatId);
+        userCurrentShowAnimalPageRequest.remove(chatId);
+        userCurrentShowAnimal.remove(chatId);
     }
 
     private void chooseCommand(Update update) {
@@ -133,7 +146,11 @@ public class UpdateService {
                 break;
 
             case CHOOSE_PET_BUTTON:
-                telegramBotSender.send(chatId, "Здесь будет список животных");
+            case SHOW_ANIMAL_PREVIOUS_BUTTON:
+            case SHOW_ANIMAL_NEXT_BUTTON:
+            case SHOW_ANIMAL_CREATE_ADOPTION_BUTTON:
+            case SHOW_ANIMAL_RETURN_BUTTON:
+                updateShowSheltersAnimal(update);
                 break;
 
             case RULES_BUTTON:
@@ -157,7 +174,7 @@ public class UpdateService {
                 break;
 
             default:
-                sendShelterMessage(chatId, messageId, data);
+                saveSelectedShelter(chatId, messageId, data);
                 break;
         }
     }
@@ -167,9 +184,13 @@ public class UpdateService {
         telegramBotSender.editMessageText(chatId, messageId, MESSAGE_CHOOSE_SHELTERS, markupChooseShelters);
     }
 
-    private void sendShelterMessage(Long chatId, Integer messageId, String data) {
+    private void saveSelectedShelter(Long chatId, Integer messageId, String data) {
         long shelterId = Long.parseLong(data);
         userCurrentShelterId.put(chatId, shelterId);
+        sendShelterMessage(chatId, messageId, shelterId);
+    }
+
+    private void sendShelterMessage(Long chatId, Integer messageId, Long shelterId) {
         Shelter shelter = shelterService.getShelter(shelterId);
         InlineKeyboardMarkup markupInformationAboutShelter = inlineKeyboardMarkupCreator.createKeyboardInformationAboutShelter();
         String message = "Добро пожаловать в приют " + shelter.getName() + "! " + MESSAGE_INFORMATION_ABOUT_SHELTER;
@@ -296,7 +317,7 @@ public class UpdateService {
         try {
             byte[] roadmap = travelDirectionsService.downloadTravelDirectionsDataFromDb(shelterId);
             telegramBotSender.deleteMessage(chatId, messageId);
-            telegramBotSender.sendPhoto(chatId, roadmap);
+            telegramBotSender.sendPhoto(chatId, roadmap, "Схема проезда к приюту");
             telegramBotSender.send(chatId, MESSAGE_INFORMATION_ABOUT_SHELTER, markup);
         } catch (TravelDirectionsNotFoundException e) {
             telegramBotSender.editMessageText(
@@ -479,5 +500,103 @@ public class UpdateService {
                 showMainMenu(chatId);
                 break;
         }
+    }
+
+    private void updateShowSheltersAnimal(Update update) {
+        final CallbackQuery callbackQuery = update.callbackQuery();
+        final Long chatId = callbackQuery.maybeInaccessibleMessage().chat().id();
+        final Integer messageId = callbackQuery.maybeInaccessibleMessage().messageId();
+        final Message message = callbackQuery.message();
+        final InlineKeyboardMarkup messageMarkup = callbackQuery.message().replyMarkup();
+
+        switch (callbackQuery.data()) {
+            case CHOOSE_PET_BUTTON:
+                if (!userCurrentShelterId.containsKey(chatId)) {
+                    telegramBotSender.deleteMessage(chatId, messageId);
+                    telegramBotSender.send(chatId, "Для просмотра животных приюта сначала выберите приют");
+                    telegramBotSender.send(chatId, message.text(), messageMarkup);
+                    break;
+                }
+
+                if (animalService.animalCountByShelterId(userCurrentShelterId.get(chatId)) == 0) {
+                    telegramBotSender.deleteMessage(chatId, messageId);
+                    telegramBotSender.send(chatId, "Извините, в указанном приюте нет животных для усыновления");
+                    telegramBotSender.send(chatId, message.text(), messageMarkup);
+                    break;
+                }
+
+                PageRequest animalsPageRequest = PageRequest.of(0, 1);
+                userCurrentShowAnimalPageRequest.put(chatId, animalsPageRequest);
+
+                sendShowAnimalByPageRequest(
+                        chatId,
+                        messageId,
+                        inlineKeyboardMarkupCreator.createKeyboardShowSheltersAnimal());
+                break;
+            case SHOW_ANIMAL_PREVIOUS_BUTTON:
+                PageRequest showAnimalPreviousPageRequest = userCurrentShowAnimalPageRequest.get(chatId).previous();
+                userCurrentShowAnimalPageRequest.put(chatId, showAnimalPreviousPageRequest);
+                sendShowAnimalByPageRequest(chatId, messageId, messageMarkup);
+                break;
+            case SHOW_ANIMAL_NEXT_BUTTON:
+                PageRequest showAnimalNextPageRequest = userCurrentShowAnimalPageRequest.get(chatId).next();
+                userCurrentShowAnimalPageRequest.put(chatId, showAnimalNextPageRequest);
+                sendShowAnimalByPageRequest(chatId, messageId, messageMarkup);
+                break;
+            case SHOW_ANIMAL_CREATE_ADOPTION_BUTTON:
+                createAnimalAdoption(chatId, messageId);
+                break;
+            case SHOW_ANIMAL_RETURN_BUTTON:
+                sendShowAnimalReturnMessage(chatId, messageId);
+        }
+    }
+
+    private void sendShowAnimalByPageRequest(Long chatId, Integer messageId, InlineKeyboardMarkup markup) {
+        final Long shelterId = userCurrentShelterId.get(chatId);
+        final PageRequest pageRequest = userCurrentShowAnimalPageRequest.get(chatId);
+
+        List<Animal> animals = animalService.getPaginatedAnimalByShelterId(shelterId, pageRequest);
+
+        if (animals.isEmpty()) {
+            pageRequest.previous();
+            return;
+        }
+
+        Animal animal = animals.get(0);
+        AvatarAnimal avatar = avatarAnimalService.findAvatarAnimalOrReturnDefaultAvailableImage(animal);
+
+        String caption = "Кличка: " + animal.getName() + "\nВозраст: " + animal.getAgeAnimal();
+
+        userCurrentShowAnimal.put(chatId, animal);
+
+        if (messageId != null) {
+            telegramBotSender.deleteMessage(chatId, messageId);
+        }
+        telegramBotSender.sendPhoto(chatId, avatar.getData(), caption, markup);
+    }
+
+    private void createAnimalAdoption(Long chatId, Integer messageId) {
+        Adoption createdAdoption = adoptionService.addAdoption(
+                userCurrentShowAnimal.get(chatId).getIdAnimal(),
+                chatId,
+                userCurrentShelterId.get(chatId)
+        );
+
+        telegramBotSender.deleteMessage(chatId, messageId);
+        telegramBotSender.send(
+                chatId,
+                "Заявка на усыновление создана. Номер заявки: " + createdAdoption.getId()
+        );
+        sendShowAnimalByPageRequest(
+                chatId,
+                null,
+                inlineKeyboardMarkupCreator.createKeyboardShowSheltersAnimal()
+        );
+    }
+
+    private void sendShowAnimalReturnMessage(Long chatId, Integer messageId) {
+        userCurrentShowAnimalPageRequest.remove(chatId);
+        userCurrentShowAnimal.remove(chatId);
+        sendShelterMessage(chatId, null, userCurrentShelterId.get(chatId));
     }
 }

@@ -72,4 +72,10 @@ public class Constants {
     // LocalDate converted
     public static final String FORMAT_REPORT_DATE = "dd-MM-yyyy";
     public static final DateTimeFormatter REPORT_DATE_FORMATTER = DateTimeFormatter.ofPattern(FORMAT_REPORT_DATE);
+
+    // Show shelter`s animals
+    public static final String SHOW_ANIMAL_PREVIOUS_BUTTON = "SHOW_ANIMAL_PREVIOUS_BUTTON";
+    public static final String SHOW_ANIMAL_NEXT_BUTTON = "SHOW_ANIMAL_NEXT_BUTTON";
+    public static final String SHOW_ANIMAL_CREATE_ADOPTION_BUTTON = "SHOW_ANIMAL_CREATE_ADOPTION_BUTTON";
+    public static final String SHOW_ANIMAL_RETURN_BUTTON = "SHOW_ANIMAL_RETURN_BUTTON";
 }
