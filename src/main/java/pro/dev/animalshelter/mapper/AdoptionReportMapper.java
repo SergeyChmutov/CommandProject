@@ -10,9 +10,9 @@ public class AdoptionReportMapper {
         AdoptionReportDTO reportDTO = new AdoptionReportDTO(
                 report.getPk().getAdoption().getId(),
                 report.getPk().getReportDate(),
-                report.getPk().getAdoption().getAdoptionRequest().getShelter().getId(),
-                report.getPk().getAdoption().getAdoptionRequest().getAnimal().getIdAnimal(),
-                report.getPk().getAdoption().getAdoptionRequest().getUser().getId(),
+                report.getPk().getAdoption().getShelter().getId(),
+                report.getPk().getAdoption().getAnimal().getIdAnimal(),
+                report.getPk().getAdoption().getUser().getId(),
                 report.getRation(),
                 report.getWellBeing(),
                 report.getBehaviourChange()
