@@ -1,5 +1,6 @@
 package pro.dev.animalshelter.interfaces;
 
+import pro.dev.animalshelter.enums.RequestStatus;
 import pro.dev.animalshelter.model.Adoption;
 
 import java.util.List;
@@ -11,7 +12,8 @@ public interface AdoptionService {
 
     List<Adoption> getAdoption();
 
-    Adoption prolongTrialPeriod(Long id, int daysToAdd);
+    Adoption changeTrialPeriod(Long id, int daysToAdd);
+    Adoption changeRequestStatus(Long id, RequestStatus status);
 
     void deleteAdoption(Long id);
 
