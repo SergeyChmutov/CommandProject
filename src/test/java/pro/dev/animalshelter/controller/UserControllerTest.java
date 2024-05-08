@@ -7,8 +7,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import pro.dev.animalshelter.conroller.UserController;
+import pro.dev.animalshelter.model.Shelter;
 import pro.dev.animalshelter.model.Users;
-import pro.dev.animalshelter.service.impl.SheltersServiceImpl;
+import pro.dev.animalshelter.service.SheltersServiceImpl;
 import pro.dev.animalshelter.service.UserService;
 
 import java.util.ArrayList;
@@ -26,16 +27,21 @@ public class UserControllerTest {
     @MockBean
     private UserService service;
     @MockBean
+    private Shelter shelters;
+    @MockBean
     private SheltersServiceImpl service1;
+
+    Long id = 12345l;
+    String name = "Иван";
+    String  phone = "123456789";
+    Shelter shelter = null;
 
     @Test
     public void findById() throws Exception{
-        Long id = 12345l;
-        String name = "Иван";
-        Integer phone = 12345654;
 
-        Users studentObject = new Users(id,name,phone);
-        Users student = new Users(id,name,phone);
+
+        Users studentObject = new Users(id,name,phone,shelter);
+        Users student = new Users(id,name,phone,shelter);
 
         when(service.findById(studentObject.getId())).thenReturn(student);
 
@@ -48,12 +54,10 @@ public class UserControllerTest {
     }
     @Test
     public void clearUsers() throws Exception{
-        Long id = 12345l;
-        String name = "Иван";
-        Integer phone = 12345654;
 
-        Users studentObject = new Users(id,name,phone);
-        Users student = new Users(id,name,phone);
+
+        Users studentObject = new Users(id,name,phone,shelter);
+        Users student = new Users(id,name,phone,shelter);
 
         when(service.clearUsers()).thenReturn("База данных очищена");
 
@@ -64,12 +68,10 @@ public class UserControllerTest {
     }
     @Test
     public void removeUser() throws Exception{
-        Long id = 12345l;
-        String name = "Иван";
-        Integer phone = 12345654;
 
-        Users studentObject = new Users(id,name,phone);
-        Users student = new Users(id,name,phone);
+
+        Users studentObject = new Users(id,name,phone,shelter);
+
 
         when(service.removeUser(studentObject.getId())).thenReturn("Пользователь удалён!");
 
@@ -80,12 +82,10 @@ public class UserControllerTest {
     }
     @Test
     public void findAllUsers() throws Exception{
-        Long id = 12345l;
-        String name = "Иван";
-        Integer phone = 12345654;
-        Users student = new Users(id,name,phone);
-        Users student1 = new Users(12l,"name",876543456);
-        Users student2 = new Users(7654l,"ffff",234567098);
+
+        Users student = new Users(id,name,phone,shelter);
+        Users student1 = new Users(12l,"name","876543456",null);
+        Users student2 = new Users(7654l,"ffff","234567098",null);
         List<Users> list = new ArrayList<>();
         list.add(student);
         list.add(student1);

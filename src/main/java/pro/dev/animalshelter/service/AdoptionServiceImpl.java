@@ -1,8 +1,11 @@
-package pro.dev.animalshelter.service.impl;
+package pro.dev.animalshelter.service;
 
 import org.springframework.stereotype.Service;
+import pro.dev.animalshelter.dto.AdoptionDTO;
+import pro.dev.animalshelter.enums.RequestStatus;
 import pro.dev.animalshelter.exception.AdoptionNotFoundException;
 import pro.dev.animalshelter.interfaces.AdoptionService;
+import pro.dev.animalshelter.mapper.AdoptionMapper;
 import pro.dev.animalshelter.model.Adoption;
 import pro.dev.animalshelter.model.Animal;
 import pro.dev.animalshelter.model.Shelter;
@@ -30,10 +33,7 @@ public class AdoptionServiceImpl implements AdoptionService {
         Shelter shelter = new Shelter();
         shelter.setId(shelterId);
 
-        LocalDate confirmationDate = LocalDate.now();
-        LocalDate trialDate = LocalDate.now().plusDays(30);
-
-        Adoption adoption = new Adoption(shelter, user, animal, confirmationDate, trialDate);
+        Adoption adoption = new Adoption(shelter, user, animal);
         return adoptionRepository.save(adoption);
     }
 
@@ -48,11 +48,24 @@ public class AdoptionServiceImpl implements AdoptionService {
     }
 
     @Override
-    public Adoption prolongTrialPeriod(Long id, int daysToAdd) {
-        return adoptionRepository.findById(id).map(adoption -> {
+    public Adoption changeTrialPeriod(Long id, int daysToAdd) {
+        Adoption adoption = adoptionRepository.findById(id)
+                .orElseThrow(() -> new AdoptionNotFoundException("Запись не найдена"));
+
+        if (adoption.getTrialDate() != null) {
             LocalDate currentTrialPeriodEndDate = adoption.getTrialDate();
-            LocalDate newTrialPeriodEndDate = currentTrialPeriodEndDate.plusDays(daysToAdd);
-            adoption.setTrialDate(newTrialPeriodEndDate);
+            adoption.setTrialDate(getNewTrialPeriod(currentTrialPeriodEndDate, daysToAdd));
+        } else {
+            LocalDate currentTrialPeriodEndDate = LocalDate.now();
+            adoption.setTrialDate(getNewTrialPeriod(currentTrialPeriodEndDate, daysToAdd));
+        }
+        return adoptionRepository.save(adoption);
+    }
+
+    @Override
+    public Adoption changeRequestStatus(Long id, RequestStatus status) {
+        return adoptionRepository.findById(id).map(adoption -> {
+            adoption.setStatus(status);
             return adoptionRepository.save(adoption);
         }).orElseThrow(() -> new AdoptionNotFoundException("Запись не найдена"));
     }
@@ -60,5 +73,9 @@ public class AdoptionServiceImpl implements AdoptionService {
     @Override
     public void deleteAdoption(Long id) {
         adoptionRepository.deleteById(id);
+    }
+
+    private static LocalDate getNewTrialPeriod(LocalDate currentTrialPeriodEndDate, int daysToAdd) {
+        return currentTrialPeriodEndDate.plusDays(daysToAdd);
     }
 }

@@ -1,5 +1,6 @@
 package pro.dev.animalshelter.service;
 
+import org.springframework.data.domain.Pageable;
 import pro.dev.animalshelter.interfaces.AnimalInterface;
 import pro.dev.animalshelter.model.Animal;
 import pro.dev.animalshelter.repository.AnimalRepository;
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class AnimalService implements AnimalInterface {
     private final AnimalRepository animalRepository;
 
@@ -46,6 +48,16 @@ public class AnimalService implements AnimalInterface {
     @Override
     public Boolean existsByIdAnimal(Long idAnimal) {
         return animalRepository.existsById(idAnimal);
+    }
+
+    @Override
+    public Long animalCountByShelterId(Long id) {
+        return animalRepository.countByShelter_Id(id);
+    }
+
+    @Override
+    public List<Animal> getPaginatedAnimalByShelterId(Long id, Pageable pageRequest) {
+        return animalRepository.findByShelter_Id(id, pageRequest);
     }
 }
 

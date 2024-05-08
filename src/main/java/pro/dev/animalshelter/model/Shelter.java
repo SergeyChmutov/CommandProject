@@ -1,8 +1,10 @@
 package pro.dev.animalshelter.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -19,6 +21,10 @@ public class Shelter {
     @OneToMany(mappedBy = "shelter")
     @JsonIgnore
     private List<Animal> animals;
+
+    @OneToMany(mappedBy = "shelter")
+//    @JsonManagedReference
+    private List<Adoption> adoptions = new ArrayList<>();
 
     public Shelter() {
     }

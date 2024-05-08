@@ -1,4 +1,4 @@
-package pro.dev.animalshelter.service.impl;
+package pro.dev.animalshelter.service;
 
 import org.springframework.stereotype.Service;
 import pro.dev.animalshelter.exception.SheltersNotFoundException;

@@ -1,9 +1,6 @@
 package pro.dev.animalshelter.dto;
 
-import jakarta.persistence.Lob;
-import jakarta.persistence.OneToOne;
 import org.springframework.stereotype.Component;
-import pro.dev.animalshelter.model.Shelter;
 
 import java.util.Objects;
 

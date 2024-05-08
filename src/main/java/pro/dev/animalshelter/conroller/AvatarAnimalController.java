@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import pro.dev.animalshelter.dto.AvatarAnimalDTO;
 import pro.dev.animalshelter.mapper.AvatarAnimalMapper;
 import pro.dev.animalshelter.model.AvatarAnimal;
-import pro.dev.animalshelter.service.AvatarAnimalService;
+import pro.dev.animalshelter.interfaces.AvatarAnimalService;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,17 +22,13 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("avatars")
 public class AvatarAnimalController {
-
     private final AvatarAnimalService avatarAnimalService;
-
     private final AvatarAnimalMapper avatarAnimalMapper;
 
     public AvatarAnimalController(AvatarAnimalService avatarAnimalService, AvatarAnimalMapper avatarAnimalMapper) {
         this.avatarAnimalService = avatarAnimalService;
         this.avatarAnimalMapper = avatarAnimalMapper;
     }
-
-
 
     @GetMapping
     public List<AvatarAnimalDTO> getPaginatedAvatars(
