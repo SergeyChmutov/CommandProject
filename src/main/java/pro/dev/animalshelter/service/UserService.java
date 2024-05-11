@@ -1,6 +1,8 @@
 package pro.dev.animalshelter.service;
 
 import org.springframework.stereotype.Service;
+import pro.dev.animalshelter.exception.SheltersNotFoundException;
+import pro.dev.animalshelter.exception.UserNotFoundException;
 import pro.dev.animalshelter.interfaces.UserInterface;
 import pro.dev.animalshelter.model.Shelter;
 import pro.dev.animalshelter.model.Users;
@@ -8,6 +10,7 @@ import pro.dev.animalshelter.repository.ShelterRepository;
 import pro.dev.animalshelter.repository.UserRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService implements UserInterface {
@@ -21,13 +24,23 @@ public class UserService implements UserInterface {
 
     @Override
     public Users addVolunteerUser(Long id, Long idShelter) {
-        if (idShelter == 0) {
-            userRepository.findById(id).get().setShelter(null);
+        final Optional<Users> user = userRepository.findById(id);
+        if (user.isPresent()) {
+            if (idShelter == 0) {
+                user.get().setShelter(null);
+            } else {
+                final Optional<Shelter> shelter = shelterRepository.findById(idShelter);
+                if (shelter.isPresent()) {
+                    user.get().setShelter(shelter.get());
+                } else {
+                    throw new SheltersNotFoundException("Не найден приют с идентификатором " + idShelter);
+                }
+            }
         } else {
-            userRepository.findById(id).get().setShelter(shelterRepository.findById(idShelter).get());
+            throw new UserNotFoundException(id);
         }
-        userRepository.save(userRepository.findById(id).get());
-        return userRepository.findById(id).get();
+        userRepository.save(user.get());
+        return user.get();
     }
 
     @Override

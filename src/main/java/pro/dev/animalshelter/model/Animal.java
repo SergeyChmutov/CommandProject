@@ -18,23 +18,17 @@ public class Animal {
     @ManyToOne
     @JoinColumn(name = "shelter_id")
     private Shelter shelter;
-
     @OneToMany(mappedBy = "animal")
 //    @JsonManagedReference
     private List<Adoption> adoptions = new ArrayList<>();
 
-    public Animal(Long idAnimal, String nameAnimal, int ageAnimal) {
+    public Animal() {
     }
 
-    public Animal(Long idAnimal, String nameAnimal, int ageAnimal, Shelter shelter) {
-        this.idAnimal = idAnimal;
+    public Animal(String nameAnimal, int ageAnimal, Shelter shelter) {
         this.nameAnimal = nameAnimal;
         this.ageAnimal = ageAnimal;
         this.shelter = shelter;
-    }
-
-    public Animal() {
-
     }
 
     public Shelter getShelter() {

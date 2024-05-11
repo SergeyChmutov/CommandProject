@@ -2,7 +2,9 @@ package pro.dev.animalshelter.service;
 
 import org.springframework.data.domain.Pageable;
 import pro.dev.animalshelter.interfaces.AnimalInterface;
+import pro.dev.animalshelter.interfaces.ShelterService;
 import pro.dev.animalshelter.model.Animal;
+import pro.dev.animalshelter.model.Shelter;
 import pro.dev.animalshelter.repository.AnimalRepository;
 import org.springframework.stereotype.Service;
 
@@ -11,14 +13,18 @@ import java.util.List;
 @Service
 public class AnimalService implements AnimalInterface {
     private final AnimalRepository animalRepository;
+    private final ShelterService shelterService;
 
-    public AnimalService(AnimalRepository animalRepository) {
+    public AnimalService(AnimalRepository animalRepository, ShelterService shelterService) {
         this.animalRepository = animalRepository;
+        this.shelterService = shelterService;
     }
 
     @Override
-    public Animal addAnimal(Long idAnimal, String nameAnimal, int ageAnimal) {
-        Animal animal = new Animal(idAnimal, nameAnimal, ageAnimal);
+    public Animal addAnimal(Long idShelter, String nameAnimal, int ageAnimal) {
+        final Shelter shelter = shelterService.getShelter(idShelter);
+        Animal animal = new Animal(nameAnimal, ageAnimal, shelter);
+        animal.setShelter(shelter);
         animalRepository.save(animal);
         return animal;
     }

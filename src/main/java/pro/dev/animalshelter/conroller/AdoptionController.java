@@ -13,8 +13,8 @@ import java.util.List;
 @RequestMapping("/adoption")
 public class AdoptionController {
     private final AdoptionService adoptionService;
-
     private final AdoptionMapper adoptionMapper;
+
     public AdoptionController(AdoptionService adoptionService, AdoptionMapper adoptionMapper) {
         this.adoptionService = adoptionService;
         this.adoptionMapper = adoptionMapper;
@@ -51,7 +51,7 @@ public class AdoptionController {
 
     @PutMapping("/{id}/requestStatus")
     public Adoption changeRequestStatus(@RequestParam(name = "adoptionId") Long adoptionId,
-                                        @RequestParam(name = "daysToAdd")RequestStatus status) {
+                                        @RequestParam(name = "status") RequestStatus status) {
         return adoptionService.changeRequestStatus(adoptionId, status);
     }
 }
