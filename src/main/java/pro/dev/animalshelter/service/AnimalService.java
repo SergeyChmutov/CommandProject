@@ -52,11 +52,6 @@ public class AnimalService implements AnimalInterface {
     }
 
     @Override
-    public Boolean existsByIdAnimal(Long idAnimal) {
-        return animalRepository.existsById(idAnimal);
-    }
-
-    @Override
     public Long animalCountByShelterId(Long id) {
         return animalRepository.countByShelter_Id(id);
     }
@@ -64,6 +59,11 @@ public class AnimalService implements AnimalInterface {
     @Override
     public List<Animal> getPaginatedAnimalByShelterId(Long id, Pageable pageRequest) {
         return animalRepository.findByShelter_Id(id, pageRequest);
+    }
+
+    @Override
+    public Animal updateAnimal(Animal animal) {
+        return animalRepository.save(animal);
     }
 }
 

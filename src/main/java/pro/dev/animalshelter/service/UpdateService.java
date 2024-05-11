@@ -4,11 +4,11 @@ import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.PhotoSize;
 import com.pengrad.telegrambot.model.Update;
-import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import pro.dev.animalshelter.enums.RecommendationType;
+import pro.dev.animalshelter.enums.RequestStatus;
 import pro.dev.animalshelter.enums.ShelterInformationProperty;
 import pro.dev.animalshelter.enums.UserMessageStatus;
 import pro.dev.animalshelter.exception.*;
@@ -174,7 +174,7 @@ public class UpdateService {
             default:
                 if (data.startsWith("INFO_")) {
                     long shelterId = Long.parseLong(data.substring(5));
-                    saveSelectedShelterAndSendInfo(chatId, shelterId);
+                    saveSelectedShelterAndSendInfo(chatId, messageId, shelterId);
                 } else if (data.startsWith("VOLUUNTEER_")) {
                     long shelterId = Long.parseLong(data.substring(11));
                     saveSelectedShelterAndChooseVolunteer(chatId, shelterId);
@@ -197,8 +197,9 @@ public class UpdateService {
         telegramBotSender.send(chatId, MESSAGE_CHOOSE_SHELTERS_FOR_VOLUNTEER, markupChooseShelters);
     }
 
-    private void saveSelectedShelterAndSendInfo(Long chatId, Long shelterId) {
+    private void saveSelectedShelterAndSendInfo(Long chatId, Integer messageId, Long shelterId) {
         userCurrentShelterId.put(chatId, shelterId);
+        telegramBotSender.deleteMessage(chatId, messageId);
         sendShelterMessage(chatId, shelterId);
     }
 
@@ -221,10 +222,10 @@ public class UpdateService {
             return;
         }
         for (Users volunteer : volunteers) {
-            StringBuilder messageText = new StringBuilder("Имя волонтера: ").append(volunteer.getName()).append("\n");
+            String messageText = "Имя волонтера: " + volunteer.getName() + "\n";
             String callbackData = CALL_VOLUNTEER_BUTTON + volunteer.getId();
             InlineKeyboardMarkup markupChooseVolunteer = inlineKeyboardMarkupCreator.createKeyboardCallVolunteer(callbackData);
-            telegramBotSender.send(chatId, messageText.toString(), markupChooseVolunteer);
+            telegramBotSender.send(chatId, messageText, markupChooseVolunteer);
         }
     }
 
@@ -534,16 +535,31 @@ public class UpdateService {
         final Integer messageId = callbackQuery.maybeInaccessibleMessage().messageId();
         final LocalDate currentDate = LocalDate.from(LocalDateTime.now());
 
-        // TODO: Нужно сегодня отправлять отчет пользователю?
+        Optional<Adoption> adoptionReport = adoptionService.findAdoptionByUserIdAndStatusAndTrialDate(
+                chatId,
+                RequestStatus.APPROVED,
+                currentDate
+        );
 
         telegramBotSender.deleteMessage(chatId, messageId);
+
+        if (!adoptionReport.isPresent()) {
+            telegramBotSender.send(
+                    chatId,
+                    MESSAGE_REPORT_APPROVED_ADOPTION_NOT_FOUND
+            );
+            telegramBotSender.send(
+                    chatId,
+                    callbackQuery.message().text(),
+                    callbackQuery.message().replyMarkup()
+            );
+            return;
+        }
+
         telegramBotSender.send(chatId, MESSAGE_SEND_REPORT_HELP);
 
         if (!userCurrentAdoptionReport.containsKey(chatId)) {
-            Adoption adoption = new Adoption();
-            adoption.setId(1L);
-
-            AdoptionReport report = new AdoptionReport(new AdoptionReportPK(adoption, currentDate));
+            AdoptionReport report = new AdoptionReport(new AdoptionReportPK(adoptionReport.get(), currentDate));
 
             userCurrentAdoptionReport.put(chatId, report);
         }
@@ -659,6 +675,28 @@ public class UpdateService {
     }
 
     private void createAnimalAdoption(Long chatId, Integer messageId) {
+        // Has consideration adoption?
+        final Optional<Adoption> findConsiderationAdoption = adoptionService.findAdoptionByUserIdAndStatus(
+                chatId,
+                RequestStatus.CONSIDERATION
+        );
+
+        if (findConsiderationAdoption.isPresent()) {
+            telegramBotSender.deleteMessage(chatId, messageId);
+            telegramBotSender.send(
+                    chatId,
+                    "У Вас уже есть нерассмотренная заявка на усыновление с номером "
+                            + findConsiderationAdoption.get().getId()
+                            + "\nПожалуйста, дождитесь решения по ней прежде, чем оформлять новую заявку."
+            );
+            sendShowAnimalByPageRequest(
+                    chatId,
+                    null,
+                    inlineKeyboardMarkupCreator.createKeyboardShowSheltersAnimal()
+            );
+            return;
+        }
+
         Adoption createdAdoption = adoptionService.addAdoption(
                 userCurrentShowAnimal.get(chatId).getIdAnimal(),
                 chatId,
@@ -680,6 +718,7 @@ public class UpdateService {
     private void sendShowAnimalReturnMessage(Long chatId, Integer messageId) {
         userCurrentShowAnimalPageRequest.remove(chatId);
         userCurrentShowAnimal.remove(chatId);
+        telegramBotSender.deleteMessage(chatId, messageId);
         sendShelterMessage(chatId, userCurrentShelterId.get(chatId));
     }
 }
