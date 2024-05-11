@@ -24,7 +24,7 @@
 		<dependency>
 			<groupId>com.github.pengrad</groupId>
 			<artifactId>java-telegram-bot-api</artifactId>
-			<version>7.2.0</version>
+			<version>7.2.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.telegram</groupId>
@@ -54,7 +54,12 @@
 			<artifactId>postgresql</artifactId>
 			<version>42.6.2</version>
 		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 	<build>
 		<plugins>
 			<plugin>

@@ -1,7 +1,10 @@
 package pro.dev.animalshelter.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -10,19 +13,21 @@ public class Animal {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long idAnimal;
-    private String name;
-    private int age;
+    private String nameAnimal;
+    private int ageAnimal;
     @ManyToOne
     @JoinColumn(name = "shelter_id")
     private Shelter shelter;
+    @OneToMany(mappedBy = "animal")
+//    @JsonManagedReference
+    private List<Adoption> adoptions = new ArrayList<>();
 
     public Animal() {
     }
 
-    public Animal(Long idAnimal, String name, int age, Shelter shelter) {
-        this.idAnimal = idAnimal;
-        this.name = name;
-        this.age = age;
+    public Animal(String nameAnimal, int ageAnimal, Shelter shelter) {
+        this.nameAnimal = nameAnimal;
+        this.ageAnimal = ageAnimal;
         this.shelter = shelter;
     }
 
@@ -43,19 +48,19 @@ public class Animal {
     }
 
     public String getName() {
-        return name;
+        return nameAnimal;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setName(String nameAnimal) {
+        this.nameAnimal = nameAnimal;
     }
 
-    public int getAge() {
-        return age;
+    public int getAgeAnimal() {
+        return ageAnimal;
     }
 
-    public void setAge(int age) {
-        this.age = age;
+    public void setAgeAnimal(int ageAnimal) {
+        this.ageAnimal = ageAnimal;
     }
 
     @Override
@@ -63,23 +68,23 @@ public class Animal {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Animal animal = (Animal) o;
-        return age == animal.age
+        return ageAnimal == animal.ageAnimal
                 && Objects.equals(idAnimal, animal.idAnimal)
-                && Objects.equals(name, animal.name)
+                && Objects.equals(nameAnimal, animal.nameAnimal)
                 && Objects.equals(shelter, animal.shelter);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(idAnimal, name, age, shelter);
+        return Objects.hash(idAnimal, nameAnimal, ageAnimal, shelter);
     }
 
     @Override
     public String toString() {
         return "Animal{" +
                 "idAnimal=" + idAnimal +
-                ", name='" + name + '\'' +
-                ", age=" + age +
+                ", name='" + nameAnimal + '\'' +
+                ", age=" + ageAnimal +
                 ", shelter=" + shelter +
                 '}';
     }

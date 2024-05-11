@@ -38,7 +38,7 @@ public class TravelDirectionsController {
     }
 
     @GetMapping(value = "/{shelterId}/from-db")
-    public ResponseEntity<byte[]> downloadAvatarFromDb(@PathVariable(name = "shelterId") Long id) {
+    public ResponseEntity<byte[]> downloadTravelDirectionsFromDb(@PathVariable(name = "shelterId") Long id) {
         return travelDirectionsService.downloadTravelDirectionsFromDb(id);
     }
 }
