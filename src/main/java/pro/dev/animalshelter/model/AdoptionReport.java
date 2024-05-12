@@ -1,5 +1,6 @@
 package pro.dev.animalshelter.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 
@@ -13,6 +14,7 @@ public class AdoptionReport {
     private String ration;
     private String wellBeing;
     private String behaviourChange;
+    private Boolean watched;
 
     public AdoptionReport() {
     }
@@ -32,6 +34,7 @@ public class AdoptionReport {
         this.ration = ration;
         this.wellBeing = wellBeing;
         this.behaviourChange = behaviourChange;
+        this.watched = false;
     }
 
     public AdoptionReportPK getPk() {
@@ -66,6 +69,14 @@ public class AdoptionReport {
         this.behaviourChange = behaviourChange;
     }
 
+    public Boolean getWatched() {
+        return watched;
+    }
+
+    public void setWatched(Boolean watched) {
+        this.watched = watched;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -74,12 +85,13 @@ public class AdoptionReport {
         return Objects.equals(pk, that.pk)
                 && Objects.equals(ration, that.ration)
                 && Objects.equals(wellBeing, that.wellBeing)
-                && Objects.equals(behaviourChange, that.behaviourChange);
+                && Objects.equals(behaviourChange, that.behaviourChange)
+                && Objects.equals(watched, that.watched);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(pk, ration, wellBeing, behaviourChange);
+        return Objects.hash(pk, ration, wellBeing, behaviourChange, watched);
     }
 
     @Override
@@ -89,6 +101,7 @@ public class AdoptionReport {
                 ", ration='" + ration + '\'' +
                 ", wellBeing='" + wellBeing + '\'' +
                 ", behaviourChange='" + behaviourChange + '\'' +
+                ", watched=" + watched +
                 '}';
     }
 }

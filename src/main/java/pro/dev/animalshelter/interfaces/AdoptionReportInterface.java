@@ -1,5 +1,6 @@
 package pro.dev.animalshelter.interfaces;
 
+import pro.dev.animalshelter.enums.RequestStatus;
 import pro.dev.animalshelter.model.AdoptionReport;
 
 import java.time.LocalDate;
@@ -30,4 +31,14 @@ public interface AdoptionReportInterface {
     Optional<AdoptionReport> getAdoptionReport(Long adoptionId, LocalDate reportDate);
 
     Collection<AdoptionReport> getAdoptionReportsByAdoptionId(Long adoptionId);
+
+    void sendMessageBadReportFiled(Long userId);
+
+    Collection<AdoptionReport> getAdoptionReportsByDate(LocalDate date);
+
+    Collection<AdoptionReport> getNotWatchedAdoptionReports();
+
+    AdoptionReport setAdoptionReportWatched(Long adoptionId, String reportDateText);
+
+    Collection<UsersId> getUsersIdWhoDidNotReport(LocalDate reportDate, RequestStatus status);
 }

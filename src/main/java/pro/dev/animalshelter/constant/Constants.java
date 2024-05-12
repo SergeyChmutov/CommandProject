@@ -63,13 +63,20 @@ public class Constants {
             4. Сообщить есть ли изменения в поведении питомца
             После выполнения всех шагов Вы автоматически будете перенаправлены в основное меню.
             """;
-    public static final String REPORT_SEND_BUTTON = "SEND_REPORT_BUTTON";
     public static final String MESSAGE_REPORT_PHOTO_INPUT = "Пришлите фото питомца";
     public static final String MESSAGE_REPORT_RATION_INPUT = "Опишите рацион животного";
     public static final String MESSAGE_WELL_BEING_INPUT = "Опишите общее самочувствие животного и как он привыкает к новому месту";
     public static final String MESSAGE_BEHAVIOR_INPUT = "Есть ли изменение в поведении животного: отказ от старых привычек, приобретение новых?";
     public static final String MESSAGE_REPORT_DONE = "Спасибо за предоставленную информацию. Отчет отправлен.";
     public static final String MESSAGE_REPORT_APPROVED_ADOPTION_NOT_FOUND = "Уважаемый пользователь! У Вас нет одобренной заявки на усыновление, а значит Вам не нужно присылать отчет.";
+    public static final String MESSAGE_REPORT_BAD_FILED = """
+            Дорогой усыновитель, мы заметили, что ты заполняешь отчет не так подробно, как необходимо.
+            Пожалуйста, подойди ответственнее к этому занятию. В противном случае волонтеры приюта будут обязаны самолично проверять условия содержания животного
+            """;
+    public static final String MESSAGE_REPORT_NOT_FILED = """
+            Дорогой усыновитель! Вы не предоставили отчет за вчерашний день о состоянии питомца.
+            Пожалуйста, подойди ответственнее к этому занятию. В противном случае волонтеры приюта будут обязаны самолично проверять условия содержания животного
+            """;
 
     public static final String MESSAGE_RETURN = "Привет! Рад Вас снова видеть! Выберите команду:";
     public static final String MESSAGE_CHOOSE_SHELTERS = "Информацию о каком приюте Вы хотели бы получить?";
@@ -101,6 +108,7 @@ public class Constants {
             Уважаемый пользователь! К сожалению Ваш процесс усыновления остановлен до окончания испытательного периода.
             Просим Вас подготовить животное к транспортировке - в ближайшее время представитель приюта должен будет забрать его.  
             """;
+    public static final String MESSAGE_CHANGE_TRIAL_PERIOD = "Уважаемый усыновитель! Вам продлен испытательный срок на %d дней.";
 
     // Adoptions trial periods
     public static final Integer ADOPTION_TRIAL_PERIOD_THIRTY_DAYS = 30;

@@ -66,14 +66,16 @@ public class AdoptionServiceImpl implements AdoptionService {
         Adoption adoption = adoptionRepository.findById(id)
                 .orElseThrow(() -> new AdoptionNotFoundException("Не найдена запись об усыновлении с номером " + id));
 
+        LocalDate currentTrialPeriodEndDate;
         if (adoption.getTrialDate() != null) {
-            LocalDate currentTrialPeriodEndDate = adoption.getTrialDate();
-            adoption.setTrialDate(getNewTrialPeriod(currentTrialPeriodEndDate, daysToAdd));
+            currentTrialPeriodEndDate = adoption.getTrialDate();
         } else {
-            LocalDate currentTrialPeriodEndDate = LocalDate.now();
-            adoption.setTrialDate(getNewTrialPeriod(currentTrialPeriodEndDate, daysToAdd));
+            currentTrialPeriodEndDate = LocalDate.now();
         }
-        return adoptionRepository.save(adoption);
+        adoption.setTrialDate(getNewTrialPeriod(currentTrialPeriodEndDate, daysToAdd));
+        adoptionRepository.save(adoption);
+        telegramBotSender.send(adoption.getUser().getId(), String.format(MESSAGE_CHANGE_TRIAL_PERIOD, daysToAdd));
+        return adoption;
     }
 
     @Override
