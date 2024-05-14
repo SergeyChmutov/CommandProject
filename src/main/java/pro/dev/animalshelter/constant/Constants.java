@@ -109,6 +109,10 @@ public class Constants {
             Просим Вас подготовить животное к транспортировке - в ближайшее время представитель приюта должен будет забрать его.  
             """;
     public static final String MESSAGE_CHANGE_TRIAL_PERIOD = "Уважаемый усыновитель! Вам продлен испытательный срок на %d дней.";
+    public static final String MESSAGE_TRIAL_PERIOD_END = """
+            Уважаемый усыновитель! Поздравляем Вас! Вы успрешно прошли испытательный срок и мы рады,
+            что наш питомец нашел своего друга в Вашем лице. Спасибо Вам!
+            """;
 
     // Adoptions trial periods
     public static final Integer ADOPTION_TRIAL_PERIOD_THIRTY_DAYS = 30;

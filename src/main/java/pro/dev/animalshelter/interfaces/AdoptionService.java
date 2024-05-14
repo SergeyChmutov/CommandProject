@@ -23,4 +23,6 @@ public interface AdoptionService {
     Optional<Adoption> findAdoptionByUserIdAndStatus(Long userId, RequestStatus status);
 
     Optional<Adoption> findAdoptionByUserIdAndStatusAndTrialDate(Long userId, RequestStatus status, LocalDate trialDate);
+
+    List<Adoption> getUsersWithEndedTrialDate(LocalDate trialDate);
 }

@@ -7,6 +7,7 @@ import pro.dev.animalshelter.exception.AdoptionReportWrongReportDateException;
 import pro.dev.animalshelter.interfaces.AdoptionReportInterface;
 import pro.dev.animalshelter.interfaces.AdoptionService;
 import pro.dev.animalshelter.interfaces.UsersId;
+import pro.dev.animalshelter.interfaces.UsersWithoutReports;
 import pro.dev.animalshelter.model.Adoption;
 import pro.dev.animalshelter.model.AdoptionReport;
 import pro.dev.animalshelter.repository.AdoptionReportRepository;
@@ -14,6 +15,7 @@ import pro.dev.animalshelter.repository.AdoptionReportRepository;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 import static pro.dev.animalshelter.constant.Constants.MESSAGE_REPORT_BAD_FILED;
@@ -144,4 +146,13 @@ public class AdoptionReportService implements AdoptionReportInterface {
     public Collection<UsersId> getUsersIdWhoDidNotReport(LocalDate reportDate, RequestStatus status) {
         return repository.findUsersIdWhoDidNotReport(reportDate, status);
     }
+
+    @Override
+    public Collection<UsersWithoutReports> getUsersWhoDidNotReportMoreThatTwoDays() {
+        LocalDate reportDate = LocalDate.now();
+        LocalDate dateTwoDaysAgo = reportDate.minusDays(2L);
+
+        return repository.findUsersWhoDidNotReportMoreThatTwoDays(dateTwoDaysAgo, reportDate, RequestStatus.APPROVED);
+    }
 }
+

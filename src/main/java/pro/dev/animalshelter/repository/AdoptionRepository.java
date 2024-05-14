@@ -6,6 +6,7 @@ import pro.dev.animalshelter.enums.RequestStatus;
 import pro.dev.animalshelter.model.Adoption;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 public interface AdoptionRepository extends JpaRepository<Adoption, Long> {
@@ -16,4 +17,6 @@ public interface AdoptionRepository extends JpaRepository<Adoption, Long> {
             RequestStatus status,
             LocalDate trialDate
     );
+
+    List<Adoption> findByStatusAndTrialDate(RequestStatus status, LocalDate trialDate);
 }

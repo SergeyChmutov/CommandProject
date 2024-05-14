@@ -130,6 +130,11 @@ public class AdoptionServiceImpl implements AdoptionService {
         return adoptionRepository.findByUser_IdAndStatusAndTrialDateLessThanEqual(userId, status, trialDate);
     }
 
+    @Override
+    public List<Adoption> getUsersWithEndedTrialDate(LocalDate trialDate) {
+        return adoptionRepository.findByStatusAndTrialDate(RequestStatus.APPROVED, trialDate);
+    }
+
     private void checkNewStatusForCorrectness(RequestStatus currentStatus, RequestStatus status) {
         Boolean newStatusIsCorrect = true;
         switch (currentStatus) {
