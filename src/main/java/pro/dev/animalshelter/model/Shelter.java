@@ -14,7 +14,7 @@ public class Shelter {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private String name;
-    @OneToMany(mappedBy = "shelter")
+    @OneToMany(mappedBy = "shelter", fetch = FetchType.EAGER)
     @JsonIgnore
     private List<Users> volunteers;
 

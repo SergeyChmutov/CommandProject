@@ -8,6 +8,7 @@ import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import pro.dev.animalshelter.enums.RecommendationType;
+import pro.dev.animalshelter.enums.RequestStatus;
 import pro.dev.animalshelter.enums.ShelterInformationProperty;
 import pro.dev.animalshelter.enums.UserMessageStatus;
 import pro.dev.animalshelter.exception.*;
@@ -16,10 +17,7 @@ import pro.dev.animalshelter.model.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -133,7 +131,7 @@ public class UpdateService {
                 break;
 
             case VOLUNTEER_BUTTON:
-                telegramBotSender.send(chatId, MESSAGE_VOLUNTEER);
+                getUserContactsForVolunteer(update);
                 break;
 
             case ABOUT_SHELTER_BUTTON:
@@ -174,7 +172,17 @@ public class UpdateService {
                 break;
 
             default:
-                saveSelectedShelter(chatId, messageId, data);
+                if (data.startsWith("INFO_")) {
+                    long shelterId = Long.parseLong(data.substring(5));
+                    saveSelectedShelterAndSendInfo(chatId, messageId, shelterId);
+                } else if (data.startsWith("VOLUUNTEER_")) {
+                    long shelterId = Long.parseLong(data.substring(11));
+                    saveSelectedShelterAndChooseVolunteer(chatId, shelterId);
+                } else if (data.startsWith("CALL_VOLUNTEER_BUTTON")) {
+                    Long volunteerId = Long.parseLong(data.substring("CALL_VOLUNTEER_BUTTON".length()));
+                    String volunteerName = userService.findById(volunteerId).getName();
+                    sendMessageToVolunteerAndUser(update, volunteerName, volunteerId);
+                }
                 break;
         }
     }
@@ -184,17 +192,41 @@ public class UpdateService {
         telegramBotSender.editMessageText(chatId, messageId, MESSAGE_CHOOSE_SHELTERS, markupChooseShelters);
     }
 
-    private void saveSelectedShelter(Long chatId, Integer messageId, String data) {
-        long shelterId = Long.parseLong(data);
-        userCurrentShelterId.put(chatId, shelterId);
-        sendShelterMessage(chatId, messageId, shelterId);
+    private void chooseShelterOfVolunteer(Long chatId) {
+        InlineKeyboardMarkup markupChooseShelters = inlineKeyboardMarkupCreator.createKeyboardChooseVolunteersShelter();
+        telegramBotSender.send(chatId, MESSAGE_CHOOSE_SHELTERS_FOR_VOLUNTEER, markupChooseShelters);
     }
 
-    private void sendShelterMessage(Long chatId, Integer messageId, Long shelterId) {
+    private void saveSelectedShelterAndSendInfo(Long chatId, Integer messageId, Long shelterId) {
+        userCurrentShelterId.put(chatId, shelterId);
+        telegramBotSender.deleteMessage(chatId, messageId);
+        sendShelterMessage(chatId, shelterId);
+    }
+
+    private void saveSelectedShelterAndChooseVolunteer(Long chatId, Long shelterId) {
+        userCurrentShelterId.put(chatId, shelterId);
+        sendVolunteerMessage(chatId, shelterId);
+    }
+
+    private void sendShelterMessage(Long chatId, Long shelterId) {
         Shelter shelter = shelterService.getShelter(shelterId);
         InlineKeyboardMarkup markupInformationAboutShelter = inlineKeyboardMarkupCreator.createKeyboardInformationAboutShelter();
         String message = "Добро пожаловать в приют " + shelter.getName() + "! " + MESSAGE_INFORMATION_ABOUT_SHELTER;
-        telegramBotSender.editMessageText(chatId, messageId, message, markupInformationAboutShelter);
+        telegramBotSender.send(chatId, message, markupInformationAboutShelter);
+    }
+
+    private void sendVolunteerMessage(Long chatId, Long shelterId) {
+        List<Users> volunteers = shelterService.getVolunteers(shelterId);
+        if (volunteers.isEmpty()) {
+            telegramBotSender.send(chatId, "В выбранном приюте в настоящее время нет свободных волонтеров");
+            return;
+        }
+        for (Users volunteer : volunteers) {
+            String messageText = "Имя волонтера: " + volunteer.getName() + "\n";
+            String callbackData = CALL_VOLUNTEER_BUTTON + volunteer.getId();
+            InlineKeyboardMarkup markupChooseVolunteer = inlineKeyboardMarkupCreator.createKeyboardCallVolunteer(callbackData);
+            telegramBotSender.send(chatId, messageText, markupChooseVolunteer);
+        }
     }
 
     private void updateRecommendationInformationCommands(Update update) {
@@ -350,6 +382,33 @@ public class UpdateService {
         userCurrentMessageStatus.put(chatId, UserMessageStatus.CONTACT_INFORMATION_INPUT);
     }
 
+    private void getUserContactsForVolunteer(Update update) {
+        final CallbackQuery callbackQuery = update.callbackQuery();
+        final Long chatId = callbackQuery.maybeInaccessibleMessage().chat().id();
+
+        Users user = userService.findById(chatId);
+        if (user.getName() != null && user.getPhone() != null) {
+            chooseShelterOfVolunteer(chatId);
+        } else {
+            telegramBotSender.send(chatId, MESSAGE_CONTACT_INFORMATION_FOR_VOLUNTEER);
+            userCurrentMessageStatus.put(chatId, UserMessageStatus.CONTACT_INFORMATION_INPUT_FOR_VOLUNTEER);
+        }
+    }
+
+    private void sendMessageToVolunteerAndUser(Update update, String volunteerName, Long volunteerChatId) {
+        final CallbackQuery callbackQuery = update.callbackQuery();
+        final Long chatId = callbackQuery.maybeInaccessibleMessage().chat().id();
+
+        Users user = userService.findById(chatId);
+        if (user.getName() != null && user.getPhone() != null) {
+            telegramBotSender.send(chatId, "Ваши контактные данные отправлены волонтеру " + volunteerName + ". " + MESSAGE_CONNECTION_WITH_VOLUNTEER, inlineKeyboardMarkupCreator.createKeyboardReturnMainMenu());
+            telegramBotSender.send(volunteerChatId, "Пользователь " + userService.findById(chatId).getName() + " хочет с вами связаться! Телефон для связи: " + userService.findById(chatId).getPhone());
+        } else {
+            telegramBotSender.send(chatId, MESSAGE_CONTACT_INFORMATION_FOR_VOLUNTEER);
+            userCurrentMessageStatus.put(chatId, UserMessageStatus.CONTACT_INFORMATION_INPUT_FOR_VOLUNTEER);
+        }
+    }
+
     private void processUserUpdate(Update update) {
         final Message message = update.message();
         final Long chatId = message.chat().id();
@@ -371,6 +430,10 @@ public class UpdateService {
                 break;
             case CONTACT_INFORMATION_INPUT:
                 parseUserContactsInformation(chatId, message.text());
+                break;
+            case CONTACT_INFORMATION_INPUT_FOR_VOLUNTEER:
+                parseUserContactsInformationForVolunteer(chatId, message.text());
+                break;
         }
     }
 
@@ -394,11 +457,32 @@ public class UpdateService {
             userService.updateUser(user);
         }
 
-        telegramBotSender.send(chatId, "Информация для связи сохранена.");
+        telegramBotSender.send(chatId, "Информация для связи сохранена.", inlineKeyboardMarkupCreator.createKeyboardReturnMainMenu());
 
         userCurrentMessageStatus.remove(chatId);
+    }
 
-        showMainMenu(chatId);
+    private void parseUserContactsInformationForVolunteer(Long chatId, String messageText) {
+        Pattern notificationPattern = Pattern.compile("(\\+7-9\\d{2}-\\d{3}-\\d{2}-\\d{2})(\\s+)(\\S+)");
+        Matcher matcher = notificationPattern.matcher(messageText);
+
+        if (!matcher.matches()) {
+            telegramBotSender.send(chatId, "Сообщение не соответствует шаблону.");
+            telegramBotSender.send(chatId, MESSAGE_CONTACT_INFORMATION_FOR_VOLUNTEER);
+            return;
+        }
+
+        final String phoneNumber = matcher.group(1);
+        final String contactName = matcher.group(3);
+
+        if (userService.existsById(chatId)) {
+            Users user = userService.findById(chatId);
+            user.setName(contactName);
+            user.setPhone(phoneNumber);
+            userService.updateUser(user);
+        }
+        telegramBotSender.send(chatId, "Ваши контактные данные успешно сохранены и будут переданы волонтеру! Выберете с волонтером из какого приюта вы бы хотели связаться. ", inlineKeyboardMarkupCreator.createKeyboardChooseVolunteersShelter());
+        userCurrentMessageStatus.remove(chatId);
     }
 
     private void processAdoptionReportUpdate(Update update, UserMessageStatus status) {
@@ -451,16 +535,31 @@ public class UpdateService {
         final Integer messageId = callbackQuery.maybeInaccessibleMessage().messageId();
         final LocalDate currentDate = LocalDate.from(LocalDateTime.now());
 
-        // TODO: Нужно сегодня отправлять отчет пользователю?
+        Optional<Adoption> adoptionReport = adoptionService.findAdoptionByUserIdAndStatusAndTrialDate(
+                chatId,
+                RequestStatus.APPROVED,
+                currentDate
+        );
 
         telegramBotSender.deleteMessage(chatId, messageId);
+
+        if (!adoptionReport.isPresent()) {
+            telegramBotSender.send(
+                    chatId,
+                    MESSAGE_REPORT_APPROVED_ADOPTION_NOT_FOUND
+            );
+            telegramBotSender.send(
+                    chatId,
+                    callbackQuery.message().text(),
+                    callbackQuery.message().replyMarkup()
+            );
+            return;
+        }
+
         telegramBotSender.send(chatId, MESSAGE_SEND_REPORT_HELP);
 
         if (!userCurrentAdoptionReport.containsKey(chatId)) {
-            Adoption adoption = new Adoption();
-            adoption.setId(1L);
-
-            AdoptionReport report = new AdoptionReport(new AdoptionReportPK(adoption, currentDate));
+            AdoptionReport report = new AdoptionReport(new AdoptionReportPK(adoptionReport.get(), currentDate));
 
             userCurrentAdoptionReport.put(chatId, report);
         }
@@ -576,6 +675,28 @@ public class UpdateService {
     }
 
     private void createAnimalAdoption(Long chatId, Integer messageId) {
+        // Has consideration adoption?
+        final Optional<Adoption> findConsiderationAdoption = adoptionService.findAdoptionByUserIdAndStatus(
+                chatId,
+                RequestStatus.CONSIDERATION
+        );
+
+        if (findConsiderationAdoption.isPresent()) {
+            telegramBotSender.deleteMessage(chatId, messageId);
+            telegramBotSender.send(
+                    chatId,
+                    "У Вас уже есть нерассмотренная заявка на усыновление с номером "
+                            + findConsiderationAdoption.get().getId()
+                            + "\nПожалуйста, дождитесь решения по ней прежде, чем оформлять новую заявку."
+            );
+            sendShowAnimalByPageRequest(
+                    chatId,
+                    null,
+                    inlineKeyboardMarkupCreator.createKeyboardShowSheltersAnimal()
+            );
+            return;
+        }
+
         Adoption createdAdoption = adoptionService.addAdoption(
                 userCurrentShowAnimal.get(chatId).getIdAnimal(),
                 chatId,
@@ -597,6 +718,7 @@ public class UpdateService {
     private void sendShowAnimalReturnMessage(Long chatId, Integer messageId) {
         userCurrentShowAnimalPageRequest.remove(chatId);
         userCurrentShowAnimal.remove(chatId);
-        sendShelterMessage(chatId, null, userCurrentShelterId.get(chatId));
+        telegramBotSender.deleteMessage(chatId, messageId);
+        sendShelterMessage(chatId, userCurrentShelterId.get(chatId));
     }
 }

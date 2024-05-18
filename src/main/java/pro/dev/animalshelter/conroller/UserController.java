@@ -20,9 +20,10 @@ public class UserController {
     public List<Users> findAllUsers() {
         return service.allUser();
     }
-    @PostMapping("{idVolunteerAdd}")
-    public Users addVolunteerUser(@PathVariable Long idVolunteerAdd,@RequestParam Long idShelter) {
-        return service.addVolunteerUser(idVolunteerAdd,idShelter);
+
+    @PostMapping("{idUser}")
+    public Users addVolunteerUser(@PathVariable(name = "idUser") Long idVolunteerAdd, @RequestParam Long idShelter) {
+        return service.addVolunteerUser(idVolunteerAdd, idShelter);
     }
     @DeleteMapping("{idRemoveUser}")
     public String removeUser(@PathVariable Long idRemoveUser) {

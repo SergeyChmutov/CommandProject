@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.List;
 
 public interface AnimalInterface {
-    Animal addAnimal (Long idAnimal, String nameAnimal, int ageAnimal);
+    Animal addAnimal(Long ShelterId, String nameAnimal, int ageAnimal);
 
     List<Animal> allAnimal();
 
@@ -17,9 +17,9 @@ public interface AnimalInterface {
 
     Animal findByIdAnimal(Long idAnimal);
 
-    Boolean existsByIdAnimal(Long idAnimal);
-
     Long animalCountByShelterId(Long id);
 
     List<Animal> getPaginatedAnimalByShelterId(Long id, Pageable pageRequest);
+
+    Animal updateAnimal(Animal animal);
 }

@@ -7,8 +7,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import pro.dev.animalshelter.interfaces.ShelterService;
 import pro.dev.animalshelter.listener.TelegramBotUpdatesListener;
-import pro.dev.animalshelter.model.AdoptionReport;
 import pro.dev.animalshelter.model.Shelter;
+import pro.dev.animalshelter.model.Users;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,6 +20,7 @@ import static pro.dev.animalshelter.constant.Constants.*;
 @Component
 public class InlineKeyboardMarkupCreator {
     private final ShelterService shelterService;
+
     private final Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
 
     public InlineKeyboardMarkupCreator(ShelterService shelterService) {
@@ -63,7 +64,23 @@ public class InlineKeyboardMarkupCreator {
         for (Shelter shelter : shelterService.getShelters()) {
             keyboardShelters.add(
                     Collections.singletonList(new InlineKeyboardButton(shelter.getName())
-                            .callbackData(Long.toString(shelter.getId())))
+                            .callbackData("INFO_" + shelter.getId()))
+            );
+        }
+
+        keyboardShelters.add(Collections.singletonList(new InlineKeyboardButton("Основное меню")
+                .callbackData(MAIN_MENU_BUTTON)));
+
+        InlineKeyboardMarkup markupShelters = getInlineKeyboardMarkup(keyboardShelters);
+        return markupShelters;
+    }
+
+    public InlineKeyboardMarkup createKeyboardChooseVolunteersShelter() {
+        List<List<InlineKeyboardButton>> keyboardShelters = new ArrayList<>();
+        for (Shelter shelter : shelterService.getShelters()) {
+            keyboardShelters.add(
+                    Collections.singletonList(new InlineKeyboardButton(shelter.getName())
+                            .callbackData("VOLUUNTEER_" + shelter.getId()))
             );
         }
 
@@ -205,5 +222,25 @@ public class InlineKeyboardMarkupCreator {
         }
 
         return new InlineKeyboardMarkup(buttonsArray);
+    }
+
+    public InlineKeyboardMarkup createKeyboardCallVolunteer(String callbackData) {
+
+        List<InlineKeyboardButton> buttonsRow = new ArrayList<>();
+        buttonsRow.add(new InlineKeyboardButton("Обратиться").callbackData(callbackData));
+        List<List<InlineKeyboardButton>> keyboardCallVolunteer = new ArrayList<>();
+        keyboardCallVolunteer.add(buttonsRow);
+        InlineKeyboardMarkup markupCallVolunteer = getInlineKeyboardMarkup(keyboardCallVolunteer);
+        return markupCallVolunteer;
+    }
+
+    public InlineKeyboardMarkup createKeyboardReturnMainMenu() {
+
+        List<InlineKeyboardButton> buttonsRow = new ArrayList<>();
+        buttonsRow.add(new InlineKeyboardButton("Вернуться в основное меню").callbackData(MAIN_MENU_BUTTON));
+        List<List<InlineKeyboardButton>> keyboardReturnMainMenu = new ArrayList<>();
+        keyboardReturnMainMenu.add(buttonsRow);
+        InlineKeyboardMarkup markupCallVolunteer = getInlineKeyboardMarkup(keyboardReturnMainMenu);
+        return markupCallVolunteer;
     }
 }

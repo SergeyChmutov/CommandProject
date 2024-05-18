@@ -9,7 +9,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/animal")
 public class AnimalController {
-
     private final AnimalService service;
 
     public AnimalController(AnimalService service) {
@@ -20,9 +19,10 @@ public class AnimalController {
     public List<Animal> findAllAnimal() {
         return service.allAnimal();
     }
-    @PostMapping("{idAnimalAdd}")
-    public Animal addAnimal(@PathVariable Long idAnimal, @RequestParam String nameAnimal, @RequestParam int ageAnimal) {
-        return service.addAnimal(idAnimal,nameAnimal, ageAnimal);
+
+    @PostMapping("/add")
+    public Animal addAnimal(@RequestParam Long idShelter, @RequestParam String nameAnimal, @RequestParam int ageAnimal) {
+        return service.addAnimal(idShelter, nameAnimal, ageAnimal);
     }
     @DeleteMapping("{idRemoveAnimal}")
     public String removeAnimal(@PathVariable Long idAnimal) {
