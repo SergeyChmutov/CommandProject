@@ -80,7 +80,7 @@ public class InlineKeyboardMarkupCreator {
         for (Shelter shelter : shelterService.getShelters()) {
             keyboardShelters.add(
                     Collections.singletonList(new InlineKeyboardButton(shelter.getName())
-                            .callbackData("VOLUUNTEER_" + shelter.getId()))
+                            .callbackData("VOLUNTEER_" + shelter.getId()))
             );
         }
 
@@ -125,7 +125,7 @@ public class InlineKeyboardMarkupCreator {
         List<List<InlineKeyboardButton>> keyboardInformationAboutPets = Arrays.asList(
                 Collections.singletonList(new InlineKeyboardButton("Правила знакомства с животным")
                         .callbackData(RULES_BUTTON)),
-                Collections.singletonList(new InlineKeyboardButton("Список документов")
+                Collections.singletonList(new InlineKeyboardButton("Список документов для усыновления")
                         .callbackData(DOCUMENTS_BUTTON)),
                 Collections.singletonList(new InlineKeyboardButton("Рекомендации по транспортировке")
                         .callbackData(TRANSPORTATION_BUTTON)),
@@ -135,11 +135,11 @@ public class InlineKeyboardMarkupCreator {
                         .callbackData(DOG_HOME_BUTTON)),
                 Collections.singletonList(new InlineKeyboardButton("Обустройство дома для животного с ограничениями")
                         .callbackData(ANIMALS_WITH_DISABILITIES_HOME_BUTTON)),
-                Collections.singletonList(new InlineKeyboardButton("Советы кинолога по первичному общению")
+                Collections.singletonList(new InlineKeyboardButton("Советы кинолога по первичному общению с собакой")
                         .callbackData(ANIMALS_WITH_DISABILITIES_HOME_BUTTON)),
-                Collections.singletonList(new InlineKeyboardButton("Обращение к кинологам")
+                Collections.singletonList(new InlineKeyboardButton("Проверенные кинологи для обращения")
                         .callbackData(ANIMALS_WITH_DISABILITIES_HOME_BUTTON)),
-                Collections.singletonList(new InlineKeyboardButton("Причины отказа, по которым могут не дать забрать животное из приюта")
+                Collections.singletonList(new InlineKeyboardButton("Причины отказа в усыновлении")
                         .callbackData(ANIMALS_WITH_DISABILITIES_HOME_BUTTON)),
                 Collections.singletonList(new InlineKeyboardButton("Оставить контакты для связи")
                         .callbackData(CONTACTS_BUTTON)),
@@ -153,65 +153,32 @@ public class InlineKeyboardMarkupCreator {
         return markupInformationAboutPets;
     }
 
-    public InlineKeyboardMarkup createKeyboardRecommendation() {
+    public InlineKeyboardMarkup createKeyboardShowSheltersAnimalNext(Long animalId) {
+        List<List<InlineKeyboardButton>> keyboardDoneReport = new ArrayList<>();
         List<InlineKeyboardButton> buttonsRow1 = new ArrayList<>();
-        buttonsRow1.add(
-                new InlineKeyboardButton("По транспортировке животного")
-                        .callbackData(TRANSPORTATION_BUTTON)
-        );
+        buttonsRow1.add(new InlineKeyboardButton("Заявка на усыновление")
+                .callbackData("ADOPT_" + animalId));
 
         List<InlineKeyboardButton> buttonsRow2 = new ArrayList<>();
-        buttonsRow2.add(new InlineKeyboardButton("По обустройству дома").callbackData(HOME_BUTTON));
+        buttonsRow2.add(new InlineKeyboardButton("Показать еще >>")
+                .callbackData(SHOW_ANIMAL_NEXT_BUTTON));
 
-        List<InlineKeyboardButton> buttonsRow3 = new ArrayList<>();
-        buttonsRow3.add(new InlineKeyboardButton("По проверенным кинологам").callbackData(DOG_HANDLER_BUTTON));
-
-        List<List<InlineKeyboardButton>> keyboardRecommendation = new ArrayList<>();
-        keyboardRecommendation.add(buttonsRow1);
-        keyboardRecommendation.add(buttonsRow2);
-        keyboardRecommendation.add(buttonsRow3);
-
-        InlineKeyboardMarkup markupRecommendation = getInlineKeyboardMarkup(keyboardRecommendation);
-        return markupRecommendation;
-    }
-
-    public InlineKeyboardMarkup createKeyboardHomeRecommendation() {
-        List<InlineKeyboardButton> buttonsRow1 = new ArrayList<>();
-        buttonsRow1.add(new InlineKeyboardButton("Для щенка").callbackData(PUPPY_HOME_BUTTON));
-
-        List<InlineKeyboardButton> buttonsRow2 = new ArrayList<>();
-        buttonsRow2.add(new InlineKeyboardButton("Для взрослого животного").callbackData(DOG_HOME_BUTTON));
-
-        List<InlineKeyboardButton> buttonsRow3 = new ArrayList<>();
-        buttonsRow3.add(
-                new InlineKeyboardButton("Для животного с ограниченными возможностями")
-                        .callbackData(ANIMALS_WITH_DISABILITIES_HOME_BUTTON)
-        );
-
-        List<List<InlineKeyboardButton>> keyboardHomeRecommendation = new ArrayList<>();
-        keyboardHomeRecommendation.add(buttonsRow1);
-        keyboardHomeRecommendation.add(buttonsRow2);
-        keyboardHomeRecommendation.add(buttonsRow3);
-
-        InlineKeyboardMarkup markupHomeRecommendation = getInlineKeyboardMarkup(keyboardHomeRecommendation);
-        return markupHomeRecommendation;
-    }
-
-    public InlineKeyboardMarkup createKeyboardShowSheltersAnimal() {
-        List<List<InlineKeyboardButton>> keyboardDoneReport = Arrays.asList(
-                Arrays.asList(new InlineKeyboardButton("<< Предыдущий")
-                        .callbackData(SHOW_ANIMAL_PREVIOUS_BUTTON),
-                        new InlineKeyboardButton("Следующий >>")
-                                .callbackData(SHOW_ANIMAL_NEXT_BUTTON)),
-                Collections.singletonList(new InlineKeyboardButton("Заявка на усыновление")
-                        .callbackData(SHOW_ANIMAL_CREATE_ADOPTION_BUTTON)),
-                Collections.singletonList(new InlineKeyboardButton("<< Вернуться")
-                        .callbackData(SHOW_ANIMAL_RETURN_BUTTON))
-        );
-
+        keyboardDoneReport.add(buttonsRow1);
+        keyboardDoneReport.add(buttonsRow2);
         InlineKeyboardMarkup keyboardMarkup = getInlineKeyboardMarkup(keyboardDoneReport);
         return keyboardMarkup;
     }
+
+    public InlineKeyboardMarkup createKeyboardAdopt(Long animalId) {
+        List<List<InlineKeyboardButton>> keyboardAdopt = new ArrayList<>();
+        keyboardAdopt.add(Collections.singletonList(new InlineKeyboardButton("Заявка на усыновление")
+                .callbackData("ADOPT_" + animalId))
+        );
+
+        InlineKeyboardMarkup markupShowSheltersAnimalWithoutPrevious = getInlineKeyboardMarkup(keyboardAdopt);
+        return markupShowSheltersAnimalWithoutPrevious;
+    }
+
 
     private InlineKeyboardMarkup getInlineKeyboardMarkup(List<List<InlineKeyboardButton>> keyboardStart) {
         InlineKeyboardButton[][] buttonsArray = new InlineKeyboardButton[keyboardStart.size()][];
@@ -242,5 +209,39 @@ public class InlineKeyboardMarkupCreator {
         keyboardReturnMainMenu.add(buttonsRow);
         InlineKeyboardMarkup markupCallVolunteer = getInlineKeyboardMarkup(keyboardReturnMainMenu);
         return markupCallVolunteer;
+    }
+
+    public InlineKeyboardMarkup createKeyboardBackToRecomendation() {
+
+        List<InlineKeyboardButton> buttonsRow = new ArrayList<>();
+        buttonsRow.add(new InlineKeyboardButton("Назад к списку рекомендаций").callbackData(INFORMATION_ABOUT_PETS_BUTTON));
+        List<List<InlineKeyboardButton>> keyboardBack = new ArrayList<>();
+        keyboardBack.add(buttonsRow);
+        InlineKeyboardMarkup markupCallVolunteer = getInlineKeyboardMarkup(keyboardBack);
+        return markupCallVolunteer;
+    }
+
+    public InlineKeyboardMarkup createKeyboardBackToShowAnimal() {
+
+        List<InlineKeyboardButton> buttonsRow1 = new ArrayList<>();
+        buttonsRow1.add(new InlineKeyboardButton("Назад к списку животных").callbackData(CHOOSE_PET_BUTTON));
+        List<InlineKeyboardButton> buttonsRow2 = new ArrayList<>();
+        buttonsRow2.add(new InlineKeyboardButton("Вернуться в основное меню").callbackData(MAIN_MENU_BUTTON));
+
+        List<List<InlineKeyboardButton>> keyboardBacktoShowAnimal = new ArrayList<>();
+        keyboardBacktoShowAnimal.add(buttonsRow1);
+        keyboardBacktoShowAnimal.add(buttonsRow2);
+        InlineKeyboardMarkup markupBackToShowAnimal = getInlineKeyboardMarkup(keyboardBacktoShowAnimal);
+        return markupBackToShowAnimal;
+    }
+
+    public InlineKeyboardMarkup createKeyboardBackToMenuOfShelter(Long shelterId) {
+        List<InlineKeyboardButton> buttonsRow = new ArrayList<>();
+        buttonsRow.add(new InlineKeyboardButton("Назад к информации о приюте").callbackData("INFO_" + shelterId));
+        List<List<InlineKeyboardButton>> keyboardBackToMenuOfShelter = new ArrayList<>();
+        keyboardBackToMenuOfShelter.add(buttonsRow);
+        InlineKeyboardMarkup markupBackToMenuOfShelter = getInlineKeyboardMarkup(keyboardBackToMenuOfShelter);
+        return markupBackToMenuOfShelter;
+
     }
 }

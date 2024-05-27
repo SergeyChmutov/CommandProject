@@ -2,6 +2,7 @@ package pro.dev.animalshelter.model;
 
 import jakarta.persistence.*;
 
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -15,6 +16,8 @@ public class Users {
     @JoinColumn(name = "shelter_id")
     Shelter shelter;
 
+    @OneToMany(mappedBy = "user")
+    private List<Adoption> adoptions;
     public Users() {
     }
 
