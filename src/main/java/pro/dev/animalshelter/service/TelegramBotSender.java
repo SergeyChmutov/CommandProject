@@ -32,7 +32,6 @@ public class TelegramBotSender {
 
     public void send(Long chatId, String message) {
         SendMessage sendMessage = new SendMessage(chatId, message);
-
         sendMessage(message, sendMessage);
     }
 
@@ -68,6 +67,9 @@ public class TelegramBotSender {
         }
     }
 
+    public void updateMessage(Long chatId, Integer messageId, InlineKeyboardMarkup newMarkup) {
+        BaseResponse response = telegramBot.execute(new EditMessageReplyMarkup(chatId, messageId).replyMarkup(newMarkup));
+    }
     public byte[] getPhotoData(String fileId) {
         try {
             File file = telegramBot.execute(new GetFile(fileId)).file();

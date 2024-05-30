@@ -36,7 +36,7 @@ public class Constants {
     public static final String MESSAGE_START = """
             Привет! Рад Вас здесь видеть!
             Я бот, который поможет вам взаимодействовать с приютами для собачек!
-            Чем я могу помочь? Для начала выберите информацию о каком приюте Вы хотели бы получить:
+            Чем я могу помочь?
             """;
 
     public static final String MESSAGE_SORRY = """
@@ -78,7 +78,8 @@ public class Constants {
             Пожалуйста, подойди ответственнее к этому занятию. В противном случае волонтеры приюта будут обязаны самолично проверять условия содержания животного
             """;
 
-    public static final String MESSAGE_RETURN = "Привет! Рад Вас снова видеть! Выберите команду:";
+    public static final String MESSAGE_RETURN = "Привет! Рад Вас снова видеть! О какои приюте вы бы хотели узнать?";
+    public static final String MESSAGE_RETURN_MAIN_MENU= "Привет! Рад Вас снова видеть! Какая информация вас интересует?";
     public static final String MESSAGE_CHOOSE_SHELTERS = "Информацию о каком приюте Вы хотели бы получить?";
     public static final String MESSAGE_CHOOSE_SHELTERS_FOR_VOLUNTEER = "К волонтеру из какого приюта Вы бы хотели обратиться?";
     public static final String MESSAGE_INFORMATION_ABOUT_SHELTER = "Здесь вы можете получить следующую информацию:";

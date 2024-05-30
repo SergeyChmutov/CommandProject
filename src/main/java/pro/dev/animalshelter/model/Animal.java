@@ -19,7 +19,6 @@ public class Animal {
     @JoinColumn(name = "shelter_id")
     private Shelter shelter;
     @OneToMany(mappedBy = "animal")
-//    @JsonManagedReference
     private List<Adoption> adoptions = new ArrayList<>();
 
     public Animal() {

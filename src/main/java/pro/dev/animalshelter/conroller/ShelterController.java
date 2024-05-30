@@ -27,6 +27,11 @@ public class ShelterController {
         return shelterService.getShelters();
     }
 
+    @GetMapping("/{id}")
+    public Shelter getShelter(@PathVariable Long id) {
+        return shelterService.getShelter(id);
+    }
+
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         shelterService.deleteShelter(id);

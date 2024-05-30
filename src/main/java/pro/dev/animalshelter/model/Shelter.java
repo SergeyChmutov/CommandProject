@@ -18,12 +18,11 @@ public class Shelter {
     @JsonIgnore
     private List<Users> volunteers;
 
-    @OneToMany(mappedBy = "shelter")
+    @OneToMany(mappedBy = "shelter", fetch = FetchType.EAGER)
     @JsonIgnore
     private List<Animal> animals;
 
     @OneToMany(mappedBy = "shelter")
-//    @JsonManagedReference
     private List<Adoption> adoptions = new ArrayList<>();
 
     public Shelter() {
