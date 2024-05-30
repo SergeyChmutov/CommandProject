@@ -223,13 +223,13 @@ public class InlineKeyboardMarkupCreator {
 
     public InlineKeyboardMarkup createKeyboardBackToShowAnimal() {
 
-        List<InlineKeyboardButton> buttonsRow1 = new ArrayList<>();
-        buttonsRow1.add(new InlineKeyboardButton("Назад к списку животных").callbackData(CHOOSE_PET_BUTTON));
+//        List<InlineKeyboardButton> buttonsRow1 = new ArrayList<>();
+//        buttonsRow1.add(new InlineKeyboardButton("Назад к списку животных").callbackData(CHOOSE_PET_BUTTON));
         List<InlineKeyboardButton> buttonsRow2 = new ArrayList<>();
         buttonsRow2.add(new InlineKeyboardButton("Вернуться в основное меню").callbackData(MAIN_MENU_BUTTON));
 
         List<List<InlineKeyboardButton>> keyboardBacktoShowAnimal = new ArrayList<>();
-        keyboardBacktoShowAnimal.add(buttonsRow1);
+//        keyboardBacktoShowAnimal.add(buttonsRow1);
         keyboardBacktoShowAnimal.add(buttonsRow2);
         InlineKeyboardMarkup markupBackToShowAnimal = getInlineKeyboardMarkup(keyboardBacktoShowAnimal);
         return markupBackToShowAnimal;

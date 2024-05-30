@@ -94,10 +94,10 @@ public class UpdateService {
 
         if (!userService.existsById(chatId)) {
             userService.addUser(chatId, update.message().chat().firstName(), null, null);
-            InlineKeyboardMarkup markupChooseShelters = inlineKeyboardMarkupCreator.createKeyboardChooseShelters();
+            InlineKeyboardMarkup markupChooseShelters = inlineKeyboardMarkupCreator.createKeyboardStart();
             telegramBotSender.send(chatId, MESSAGE_START, markupChooseShelters);
         } else {
-            InlineKeyboardMarkup markupStart = inlineKeyboardMarkupCreator.createKeyboardStart();
+            InlineKeyboardMarkup markupStart = inlineKeyboardMarkupCreator.createKeyboardChooseShelters();
             telegramBotSender.send(chatId, MESSAGE_RETURN, markupStart);
         }
 
@@ -390,12 +390,7 @@ public class UpdateService {
 
     private void returnToMainMenu(Long chatId) {
         InlineKeyboardMarkup markupStart = inlineKeyboardMarkupCreator.createKeyboardStart();
-        telegramBotSender.send(chatId, MESSAGE_RETURN, markupStart);
-    }
-
-    private void showMainMenu(Long chatId) {
-        InlineKeyboardMarkup markupStart = inlineKeyboardMarkupCreator.createKeyboardStart();
-        telegramBotSender.send(chatId, MESSAGE_RETURN, markupStart);
+        telegramBotSender.send(chatId, MESSAGE_RETURN_MAIN_MENU, markupStart);
     }
 
     private void getUserContactsInformation(Update update) {
@@ -678,11 +673,9 @@ public class UpdateService {
             if (i == animalCount - 1) {
                 InlineKeyboardMarkup nextPageMarkup = inlineKeyboardMarkupCreator.createKeyboardShowSheltersAnimalNext(animal.getIdAnimal());
                 telegramBotSender.sendPhoto(chatId, avatar.getData(), caption, nextPageMarkup);
-                System.out.println("Отправлено не последнее животное");
             } else {
                 InlineKeyboardMarkup nextPageMarkup = inlineKeyboardMarkupCreator.createKeyboardAdopt(animal.getIdAnimal());
                 telegramBotSender.sendPhoto(chatId, avatar.getData(), caption, nextPageMarkup);
-                System.out.println("Отправлено последнее животное");
             }
         }
     }
